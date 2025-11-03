@@ -24,6 +24,7 @@ namespace ProductService.Application.Commands.CreateProduct
 
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
+
             var product = _mapper.Map<Product>(request);
 
             if (request.ImageBytes != null && !string.IsNullOrEmpty(request.ImageName))

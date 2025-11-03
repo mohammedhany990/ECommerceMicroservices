@@ -1,7 +1,8 @@
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using ProductService.API.Middlewares;
 using ProductService.API.Models.Responses;
 using ProductService.Application.Behaviors;
@@ -9,7 +10,6 @@ using ProductService.Application.Commands.CreateProduct;
 using ProductService.Application.Mapping;
 using ProductService.Domain.Interfaces;
 using ProductService.Infrastructure.Data;
-using ProductService.Infrastructure.Messaging.RabbitMQ;
 using ProductService.Infrastructure.Repository;
 using ProductService.Infrastructure.Services;
 
@@ -27,6 +27,35 @@ namespace ProductService.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+
+
+            builder.Services.AddHttpClient<CategoryServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7014/"); // <-- your CategoryService base URL
+            });
+
+
+            //builder.Services.AddHttpClient("CategoryService", client =>
+            //{
+            //    client.BaseAddress = new Uri("https://localhost:7014/api/categories/");
+
+            //    //client.DefaultRequestHeaders.Add("Accept", "application/json");
+            //});
+
+           
+
+
+
+
+
+
+
+
+
+
+
+
 
             builder.Services.AddAutoMapper(cfg =>
             {
@@ -56,6 +85,12 @@ namespace ProductService.API
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 
+
+
+            //builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQProducer>();
+
+
+
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -75,7 +110,7 @@ namespace ProductService.API
             });
 
 
-          
+
 
             var app = builder.Build();
 

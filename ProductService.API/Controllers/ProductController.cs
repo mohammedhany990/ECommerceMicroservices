@@ -8,6 +8,7 @@ using ProductService.Application.Commands.UpdateProduct;
 using ProductService.Application.DTOs;
 using ProductService.Application.Queries.GetProduct;
 using ProductService.Application.Queries.GetProducts;
+using System.Net;
 
 namespace ProductService.API.Controllers
 {
@@ -16,10 +17,28 @@ namespace ProductService.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductController(IMediator mediator)
+        public ProductController(IMediator mediator, IHttpClientFactory httpClientFactory)
         {
             _mediator = mediator;
+            _httpClientFactory = httpClientFactory;
+        }
+
+        [HttpGet("cat/{id:guid}")]
+        public async Task<object?> GetCategoryByIdAsync(Guid id)
+        {
+            // Get the named client
+            var client = _httpClientFactory.CreateClient("CategoryService");
+
+            // Call external API
+            var response = await client.GetAsync($"{id}");
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var content = await response.Content.ReadFromJsonAsync<ApiResponse<object>>();
+            return content?.Data;
         }
 
 

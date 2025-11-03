@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductService.Infrastructure.Messaging.RabbitMQ
+namespace Shared.DTOs
 {
-    public class CategoryEvent
+    public class CategoryDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string EventType { get; set; } = string.Empty; // "Created", "Updated", "Deleted"
+        public string? Description { get; set; }
     }
-
 }

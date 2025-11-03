@@ -11,7 +11,7 @@ namespace ProductService.Application.Commands.UpdateProduct
         public decimal Price { get; set; }
         public decimal? DiscountPrice { get; set; }
         public int QuantityInStock { get; set; }
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
 
         public byte[]? ImageBytes { get; set; }
         public string? ImageName { get; set; }

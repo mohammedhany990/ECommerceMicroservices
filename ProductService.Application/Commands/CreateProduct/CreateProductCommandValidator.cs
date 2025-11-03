@@ -30,8 +30,9 @@ namespace ProductService.Application.Commands.CreateProduct
                 .WithMessage("Quantity in stock cannot be negative.");
 
             RuleFor(x => x.CategoryId)
-                .GreaterThan(0)
-                .WithMessage("Category ID must be greater than zero.");
+                 .NotEmpty()
+                 .WithMessage("Category ID must not be empty.");
+
 
         }
     }

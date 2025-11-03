@@ -29,8 +29,8 @@ namespace ProductService.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -70,6 +70,177 @@ namespace ProductService.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "12oz ceramic mug perfect for coffee or tea.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Ceramic Coffee Mug",
+                            Price = 6.99m,
+                            QuantityInStock = 120
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000002"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Stainless steel cup with lid, ideal for travel.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Travel Cup with Lid",
+                            Price = 14.50m,
+                            QuantityInStock = 80
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000003"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000002"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ergonomic wireless mouse with USB receiver.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Wireless Mouse",
+                            Price = 19.99m,
+                            QuantityInStock = 200
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000004"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000002"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Over-ear headphones with noise cancellation.",
+                            DiscountPrice = 49.99m,
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Bluetooth Headphones",
+                            Price = 59.99m,
+                            QuantityInStock = 75
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000005"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000003"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Classic novel by F. Scott Fitzgerald.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "The Great Gatsby",
+                            Price = 10.99m,
+                            QuantityInStock = 50
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000006"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000003"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "A book about building good habits and breaking bad ones.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Atomic Habits",
+                            Price = 16.99m,
+                            QuantityInStock = 40
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000007"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000004"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "100% cotton t-shirt, available in multiple colors.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Men's T-Shirt",
+                            Price = 9.99m,
+                            QuantityInStock = 300
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000008"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000004"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Soft fleece hoodie for women.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Women's Hoodie",
+                            Price = 24.99m,
+                            QuantityInStock = 150
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000009"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Lightweight running shoes for daily jogging.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Running Shoes",
+                            Price = 54.99m,
+                            QuantityInStock = 90
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000010"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Genuine leather shoes for formal occasions.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Leather Formal Shoes",
+                            Price = 79.99m,
+                            QuantityInStock = 60
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000011"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000007"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Ergonomic mesh chair with adjustable height.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Office Chair",
+                            Price = 129.99m,
+                            QuantityInStock = 40
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000012"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000007"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Modern wooden table for living rooms.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Wooden Coffee Table",
+                            Price = 89.99m,
+                            QuantityInStock = 30
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000013"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000006"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Hydrating daily moisturizer for all skin types.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Face Moisturizer",
+                            Price = 14.99m,
+                            QuantityInStock = 120
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CategoryId = new Guid("00000000-0000-0000-0000-000000000006"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Matte lipstick set with five shades.",
+                            ImageUrl = "",
+                            IsDeleted = false,
+                            Name = "Lipstick Set",
+                            Price = 19.99m,
+                            QuantityInStock = 70
+                        });
                 });
 #pragma warning restore 612, 618
         }
