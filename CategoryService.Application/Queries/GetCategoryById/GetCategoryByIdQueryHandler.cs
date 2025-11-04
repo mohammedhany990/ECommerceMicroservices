@@ -11,17 +11,17 @@ using System.Threading.Tasks;
 
 namespace CategoryService.Application.Queries.GetCategoryQuery
 {
-    public class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, CategoryDto>
+    public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto>
     {
         private readonly IMapper _mapper;
         private readonly IRepository<Category> _repository;
 
-        public GetCategoryQueryHandler(IMapper mapper, IRepository<Category> repository)
+        public GetCategoryByIdQueryHandler(IMapper mapper, IRepository<Category> repository)
         {
             _mapper = mapper;
             _repository = repository;
         }
-        public async Task<CategoryDto> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
+        public async Task<CategoryDto> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
         {
             var category = await _repository.GetByIdAsync(request.CategoryId);
             if (category == null)

@@ -10,21 +10,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductService.Application.Queries.GetProduct
+namespace ProductService.Application.Queries.GetProductById
 {
-    public class GetProductQueryHandler : IRequestHandler<GetProductQuery, ProductDto>
+    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
     {
         private readonly IRepository<Product> _repository;
         private readonly IMapper _mapper;
         private readonly CategoryServiceClient _categoryServiceClient;
 
-        public GetProductQueryHandler(IRepository<Product> repository, IMapper mapper, CategoryServiceClient categoryServiceClient)
+        public GetProductByIdQueryHandler(IRepository<Product> repository, IMapper mapper, CategoryServiceClient categoryServiceClient)
         {
             _repository = repository;
             _mapper = mapper;
             _categoryServiceClient = categoryServiceClient;
         }
-        public async Task<ProductDto> Handle(GetProductQuery request, CancellationToken cancellationToken)
+        public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
             var product = await _repository.GetByIdAsync(request.ProductId);
             if (product == null)

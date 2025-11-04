@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace CategoryService.Application.Queries.GetCategoryQuery
 {
-    public class GetCategoryQueryValidator : AbstractValidator<GetCategoryQuery>
+    public class GetCategoryByIdQueryValidator : AbstractValidator<GetCategoryByIdQuery>
     {
-        public GetCategoryQueryValidator()
+        public GetCategoryByIdQueryValidator()
         {
             RuleFor(x => x.CategoryId)
                 .NotEmpty()

@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace CategoryService.Application.Queries.GetCategoryQuery
 {
-    public class GetCategoryQuery : IRequest<CategoryDto>
+    public class GetCategoryByIdQuery : IRequest<CategoryDto>
     {
         public Guid CategoryId { get; set; }
-        public GetCategoryQuery(Guid categoryId)
+        public GetCategoryByIdQuery(Guid categoryId)
         {
             CategoryId = categoryId;
         }

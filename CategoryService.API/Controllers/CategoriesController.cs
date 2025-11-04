@@ -18,25 +18,23 @@ namespace CategoryService.API.Controllers
         {
             _mediator = mediator;
         }
+
+
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
             var result = await _mediator.Send(new GetCategoriesQuery());
 
-            if (result is null || !result.Any())
-            {
-                return NotFound(ApiResponse<List<CategoryDto>>.FailResponse(
-                    new List<string> { "No categories found." },
-                    "No data available",
-                    404));
-            }
-            return Ok(ApiResponse<List<CategoryDto>>.SuccessResponse(result, "Categories retrieved successfully"));
+            return Ok(
+                ApiResponse<List<CategoryDto>>
+                .SuccessResponse(result ?? new List<CategoryDto>(), "Categories retrieved successfully")
+                );
         }
 
         [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetCategoryById(Guid id)
         {
-            var result = await _mediator.Send(new GetCategoryQuery(id));
+            var result = await _mediator.Send(new GetCategoryByIdQuery(id));
 
             if (result is null)
             {

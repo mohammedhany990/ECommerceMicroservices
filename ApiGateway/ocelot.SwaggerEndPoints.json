@@ -1,0 +1,24 @@
+{
+  "SwaggerEndPoints": [
+    {
+      "Key": "product",
+      "Config": [
+        {
+          "Name": "Product Service",
+          "Version": "v1",
+          "Url": "http://localhost:5144/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "category",
+      "Config": [
+        {
+          "Name": "Category Service",
+          "Version": "v1",
+          "Url": "http://localhost:5255/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ]
+}

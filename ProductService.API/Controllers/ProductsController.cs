@@ -6,7 +6,7 @@ using ProductService.Application.Commands.CreateProduct;
 using ProductService.Application.Commands.DeleteProduct;
 using ProductService.Application.Commands.UpdateProduct;
 using ProductService.Application.DTOs;
-using ProductService.Application.Queries.GetProduct;
+using ProductService.Application.Queries.GetProductById;
 using ProductService.Application.Queries.GetProducts;
 using System.Net;
 
@@ -14,31 +14,15 @@ namespace ProductService.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductController(IMediator mediator, IHttpClientFactory httpClientFactory)
+        public ProductsController(IMediator mediator, IHttpClientFactory httpClientFactory)
         {
             _mediator = mediator;
             _httpClientFactory = httpClientFactory;
-        }
-
-        [HttpGet("cat/{id:guid}")]
-        public async Task<object?> GetCategoryByIdAsync(Guid id)
-        {
-            // Get the named client
-            var client = _httpClientFactory.CreateClient("CategoryService");
-
-            // Call external API
-            var response = await client.GetAsync($"{id}");
-
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            var content = await response.Content.ReadFromJsonAsync<ApiResponse<object>>();
-            return content?.Data;
         }
 
 
@@ -139,7 +123,7 @@ namespace ProductService.API.Controllers
         public async Task<IActionResult> GetProduct(Guid id)
         {    
 
-            var result = await _mediator.Send(new GetProductQuery(id));
+            var result = await _mediator.Send(new GetProductByIdQuery(id));
 
             if (result == null)
                 return NotFound(ApiResponse<ProductDto>.FailResponse(new List<string> { "Product not found" }, "Product not found", 404));

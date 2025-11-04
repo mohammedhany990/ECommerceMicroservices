@@ -6,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductService.Application.Queries.GetProduct
+namespace ProductService.Application.Queries.GetProductById
 {
-    public class GetProductQuery : IRequest<ProductDto>
+    public class GetProductByIdQuery : IRequest<ProductDto>
     {
         public Guid ProductId { get; set; }
-        public GetProductQuery(Guid productId)
+        public GetProductByIdQuery(Guid productId)
         {
             ProductId = productId;
         }

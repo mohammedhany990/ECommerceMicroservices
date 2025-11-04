@@ -3,6 +3,7 @@ using MediatR;
 using ProductService.Application.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Interfaces;
+using ProductService.Infrastructure.Services;
 
 namespace ProductService.Application.Commands.CreateProduct
 {
@@ -11,19 +12,24 @@ namespace ProductService.Application.Commands.CreateProduct
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _repository;
         private readonly IFileService _fileService;
+        private readonly CategoryServiceClient _categoryServiceClient;
 
         public CreateProductCommandHandler(
             IMapper mapper,
             IRepository<Product> repository,
-            IFileService fileService)
+            IFileService fileService,
+            CategoryServiceClient categoryServiceClient)
         {
             _mapper = mapper;
             _repository = repository;
             _fileService = fileService;
+            _categoryServiceClient = categoryServiceClient;
         }
-
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
+            var category = await _categoryServiceClient.GetCategoryByIdAsync(request.CategoryId);
+            if (category is null)
+                throw new Exception("Invalid Category Id. The category does not exist.");
 
             var product = _mapper.Map<Product>(request);
 
@@ -36,7 +42,11 @@ namespace ProductService.Application.Commands.CreateProduct
             await _repository.AddAsync(product);
             await _repository.SaveChangesAsync();
 
-            return _mapper.Map<ProductDto>(product);
+            var productDto = _mapper.Map<ProductDto>(product);
+            productDto.CategoryName = category.Name;
+            productDto.CategoryDescription = category.Description;
+
+            return productDto;
         }
     }
 }
