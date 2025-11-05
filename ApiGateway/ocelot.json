@@ -1,5 +1,6 @@
 {
   "Routes": [
+    // ===================== Product Service =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -26,6 +27,8 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "product"
     },
+
+    // ===================== Category Service =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -51,9 +54,37 @@
       "UpstreamPathTemplate": "/categories/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "category"
+    },
+
+    // ===================== User Service =====================
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5132
+        }
+      ],
+      "UpstreamPathTemplate": "/userswagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "user"
+    },
+    {
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5132
+        }
+      ],
+      "UpstreamPathTemplate": "/auth/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "user"
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:7200"
+    "BaseUrl": "http://localhost:5240"
   }
 }

@@ -21,18 +21,20 @@ namespace CategoryService.API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetCategories()
+        [ProducesResponseType(typeof(ApiResponse<List<CategoryDto>>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetCategories()
         {
             var result = await _mediator.Send(new GetCategoriesQuery());
 
-            return Ok(
-                ApiResponse<List<CategoryDto>>
-                .SuccessResponse(result ?? new List<CategoryDto>(), "Categories retrieved successfully")
-                );
+            return Ok(ApiResponse<List<CategoryDto>>
+                .SuccessResponse(result ?? new List<CategoryDto>(), "Categories retrieved successfully"));
         }
 
+
         [HttpGet("{id:Guid}")]
-        public async Task<IActionResult> GetCategoryById(Guid id)
+        [ProducesResponseType(typeof(ApiResponse<CategoryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<CategoryDto>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<CategoryDto>>> GetCategoryById(Guid id)
         {
             var result = await _mediator.Send(new GetCategoryByIdQuery(id));
 
@@ -43,8 +45,8 @@ namespace CategoryService.API.Controllers
                     "Not Found",
                     404));
             }
-            return Ok(ApiResponse<CategoryDto>.SuccessResponse(result, "Category retrieved successfully"));
 
+            return Ok(ApiResponse<CategoryDto>.SuccessResponse(result, "Category retrieved successfully"));
         }
 
 

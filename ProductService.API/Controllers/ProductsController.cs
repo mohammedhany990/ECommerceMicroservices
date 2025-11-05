@@ -28,7 +28,8 @@ namespace ProductService.API.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(CreateProductRequest request)
+        [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
+        public async Task<ActionResult<ApiResponse<ProductDto>>> CreateProduct([FromForm] CreateProductRequest request)
         {
             byte[]? imageBytes = null;
             string? imageName = null;
@@ -58,8 +59,10 @@ namespace ProductService.API.Controllers
             return StatusCode(201, ApiResponse<ProductDto>.SuccessResponse(result, "Product created successfully", 201));
         }
 
+
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateProduct(Guid id, UpdateProductRequest request)
+        [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ApiResponse<ProductDto>>> UpdateProduct(Guid id, [FromForm] UpdateProductRequest request)
         {
             byte[]? imageBytes = null;
             string? imageName = null;
@@ -91,38 +94,34 @@ namespace ProductService.API.Controllers
         }
 
 
-
-        
-
-
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteProduct(Guid id)
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteProduct(Guid id)
         {
             var result = await _mediator.Send(new DeleteProductCommand { ProductId = id });
 
             if (!result)
-            {
                 return NotFound(ApiResponse<bool>.FailResponse(new List<string> { "Product not found" }, "Product not found", 404));
-            }
-
 
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Product deleted successfully"));
         }
 
+
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        [ProducesResponseType(typeof(ApiResponse<List<ProductDto>>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ApiResponse<List<ProductDto>>>> GetProducts()
         {
             var result = await _mediator.Send(new GetProductsQuery());
-
-            var response = ApiResponse<List<ProductDto>>.SuccessResponse(result, "Products retrieved successfully");
-
-            return Ok(response);
+            return Ok(ApiResponse<List<ProductDto>>.SuccessResponse(result, "Products retrieved successfully"));
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetProduct(Guid id)
-        {    
 
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<ProductDto>>> GetProduct(Guid id)
+        {
             var result = await _mediator.Send(new GetProductByIdQuery(id));
 
             if (result == null)

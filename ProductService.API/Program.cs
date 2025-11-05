@@ -21,10 +21,7 @@ namespace ProductService.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -32,28 +29,8 @@ namespace ProductService.API
 
             builder.Services.AddHttpClient<CategoryServiceClient>(client =>
             {
-                client.BaseAddress = new Uri("https://localhost:7014/"); // <-- your CategoryService base URL
+                client.BaseAddress = new Uri("https://localhost:7014/");
             });
-
-
-            //builder.Services.AddHttpClient("CategoryService", client =>
-            //{
-            //    client.BaseAddress = new Uri("https://localhost:7014/api/categories/");
-
-            //    //client.DefaultRequestHeaders.Add("Accept", "application/json");
-            //});
-
-           
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -85,12 +62,6 @@ namespace ProductService.API
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 
-
-
-            //builder.Services.AddSingleton<IRabbitMQPublisher, RabbitMQProducer>();
-
-
-
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -98,7 +69,7 @@ namespace ProductService.API
                 options.InvalidModelStateResponseFactory = (actionContext) =>
                 {
                     var errors = actionContext.ModelState
-                        .Where(e => e.Value.Errors.Count > 0)
+                        .Where(e => e.Value?.Errors.Count > 0)
                         .SelectMany(e => e.Value.Errors)
                         .Select(m => m.ErrorMessage)
                         .ToList();
