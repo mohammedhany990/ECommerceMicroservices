@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.API.Models.Requests;
 using ProductService.API.Models.Responses;
@@ -26,7 +27,7 @@ namespace ProductService.API.Controllers
         }
 
 
-
+        [Authorize/*(Roles = "Admin")*/]
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
         public async Task<ActionResult<ApiResponse<ProductDto>>> CreateProduct([FromForm] CreateProductRequest request)

@@ -32,7 +32,37 @@ namespace UserService.API
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSwaggerGen(opt =>
+            {
+
+                var securitySchema = new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+
+                opt.AddSecurityDefinition("Bearer", securitySchema);
+
+                var securityRequirement = new OpenApiSecurityRequirement
+                {
+                    { securitySchema, new[] { "Bearer" } }
+                };
+
+                opt.AddSecurityRequirement(securityRequirement);
+
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "User Service", Version = "v1.0" });
+
+            });
 
 
 
@@ -63,16 +93,12 @@ namespace UserService.API
                 typeof(ValidationBehavior<,>)
             );
 
-
+            //builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
 
             var jwtSettingsSection = builder.Configuration.GetSection("JwtSettings");
             builder.Services.Configure<JwtSettings>(jwtSettingsSection);
 
-            builder.Services.AddSingleton(sp =>
-                sp.GetRequiredService<IOptions<JwtSettings>>().Value
-            );
-
-            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+            var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -95,6 +121,7 @@ namespace UserService.API
                     ClockSkew = TimeSpan.Zero
                 };
             });
+
 
 
 
@@ -124,7 +151,7 @@ namespace UserService.API
             var app = builder.Build();
 
             app.UseMiddleware<ExceptionMiddleware>();
-            
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
