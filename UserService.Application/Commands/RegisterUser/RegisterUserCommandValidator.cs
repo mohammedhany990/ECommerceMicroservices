@@ -24,7 +24,7 @@ namespace UserService.Application.Commands.RegisterUser
            ).WithMessage("Email already exists.");
 
 
-           
+
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required")

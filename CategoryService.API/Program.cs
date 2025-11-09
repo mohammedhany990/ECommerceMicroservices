@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
 
 namespace CategoryService.API
 {
@@ -73,22 +74,63 @@ namespace CategoryService.API
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = builder.Configuration["JwtSettings:Audience"],
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+               .AddJwtBearer(options =>
+               {
+                   options.RequireHttpsMetadata = false;
+                   options.SaveToken = true;
+                   options.TokenValidationParameters = new TokenValidationParameters
+                   {
+                       ValidateIssuer = true,
+                       ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                       ValidateAudience = true,
+                       ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                       ValidateLifetime = true,
+                       ValidateIssuerSigningKey = true,
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
+                       ClockSkew = TimeSpan.Zero
+                   };
+
+                   // Customize 401/403 responses
+                   options.Events = new JwtBearerEvents
+                   {
+                       OnChallenge = async context =>
+                       {
+                           // Prevent default 401 response
+                           context.HandleResponse();
+
+                           context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                           context.Response.ContentType = "application/json";
+
+                           var response = ApiResponse<object>.FailResponse(
+                                new List<string> { "You are not authorized to access this resource." },
+                                "Unauthorized",
+                                StatusCodes.Status401Unauthorized
+                            );
+
+                           await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+                           {
+                               PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                           }));
+                       },
+                       OnForbidden = async context =>
+                       {
+                           context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                           context.Response.ContentType = "application/json";
+
+                           var response = ApiResponse<object>.FailResponse(
+                                new List<string> { "You do not have permission to access this resource." },
+                                "Forbidden",
+                                StatusCodes.Status403Forbidden
+                            );
+
+                           await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+                           {
+                               PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                           }));
+                       }
+                   };
+               });
+
 
 
 

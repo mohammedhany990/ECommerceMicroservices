@@ -9,7 +9,6 @@ using ProductService.Application.Commands.UpdateProduct;
 using ProductService.Application.DTOs;
 using ProductService.Application.Queries.GetProductById;
 using ProductService.Application.Queries.GetProducts;
-using System.Net;
 
 namespace ProductService.API.Controllers
 {
@@ -27,7 +26,7 @@ namespace ProductService.API.Controllers
         }
 
 
-        [Authorize/*(Roles = "Admin")*/]
+        //[Authorize/*(Roles = "Admin")*/]
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
         public async Task<ActionResult<ApiResponse<ProductDto>>> CreateProduct([FromForm] CreateProductRequest request)

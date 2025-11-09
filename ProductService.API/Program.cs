@@ -15,6 +15,7 @@ using ProductService.Infrastructure.Data;
 using ProductService.Infrastructure.Repository;
 using ProductService.Infrastructure.Services;
 using System.Text;
+using System.Text.Json;
 
 namespace ProductService.API
 {
@@ -26,36 +27,39 @@ namespace ProductService.API
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+
+            #region Swagger
             builder.Services.AddSwaggerGen(opt =>
+    {
+
+        var securitySchema = new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Reference = new OpenApiReference
             {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            }
+        };
 
-                var securitySchema = new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                };
+        opt.AddSecurityDefinition("Bearer", securitySchema);
 
-                opt.AddSecurityDefinition("Bearer", securitySchema);
-
-                var securityRequirement = new OpenApiSecurityRequirement
-                {
+        var securityRequirement = new OpenApiSecurityRequirement
+        {
                     { securitySchema, new[] { "Bearer" } }
-                };
+        };
 
-                opt.AddSecurityRequirement(securityRequirement);
+        opt.AddSecurityRequirement(securityRequirement);
 
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
+        opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
 
-            });
+    }); 
+            #endregion
 
 
             builder.Services.AddHttpClient<CategoryServiceClient>(client =>
@@ -65,10 +69,10 @@ namespace ProductService.API
 
 
 
-            builder.Services.AddAutoMapper(cfg =>
-            {
-                cfg.AddProfile<MappingProfile>();
-            }, typeof(MappingProfile).Assembly);
+                builder.Services.AddAutoMapper(cfg =>
+                {
+                    cfg.AddProfile<MappingProfile>();
+                }, typeof(MappingProfile).Assembly);
 
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -112,27 +116,69 @@ namespace ProductService.API
             });
 
 
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = builder.Configuration["JwtSettings:Audience"],
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+               .AddJwtBearer(options =>
+               {
+                   options.RequireHttpsMetadata = false;
+                   options.SaveToken = true;
+                   options.TokenValidationParameters = new TokenValidationParameters
+                   {
+                       ValidateIssuer = true,
+                       ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                       ValidateAudience = true,
+                       ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                       ValidateLifetime = true,
+                       ValidateIssuerSigningKey = true,
+                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)),
+                       ClockSkew = TimeSpan.Zero
+                   };
+
+                   // Customize 401/403 responses
+                   options.Events = new JwtBearerEvents
+                   {
+                       OnChallenge = async context =>
+                       {
+                           // Prevent default 401 response
+                           context.HandleResponse();
+
+                           context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                           context.Response.ContentType = "application/json";
+
+                           var response = ApiResponse<object>.FailResponse(
+                                new List<string> { "You are not authorized to access this resource." },
+                                "Unauthorized",
+                                StatusCodes.Status401Unauthorized
+                            );
+
+                           await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+                           {
+                               PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                           }));
+                       },
+                       OnForbidden = async context =>
+                       {
+                           context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                           context.Response.ContentType = "application/json";
+
+                           var response = ApiResponse<object>.FailResponse(
+                                new List<string> { "You do not have permission to access this resource." },
+                                "Forbidden",
+                                StatusCodes.Status403Forbidden
+                            );
+
+                           await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+                           {
+                               PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                           }));
+                       }
+                   };
+               });
+
 
 
 

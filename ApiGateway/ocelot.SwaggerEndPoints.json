@@ -29,6 +29,16 @@
           "Url": "http://localhost:5132/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "cart",
+      "Config": [
+        {
+          "Name": "Cart Service",
+          "Version": "v1",
+          "Url": "http://localhost:5171/swagger/v1/swagger.json"
+        }
+      ]
     }
   ]
 }

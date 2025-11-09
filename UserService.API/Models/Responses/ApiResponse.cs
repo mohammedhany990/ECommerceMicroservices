@@ -15,7 +15,7 @@
             Message = message;
             Data = data;
         }
-       
+
 
         public static ApiResponse<T> SuccessResponse(T data, string message = "Success", int statusCode = 200)
             => new(statusCode, true, message, data);

@@ -1,12 +1,5 @@
-﻿using ProductService.Domain.Entities;
-using ProductService.Domain.Interfaces;
-using Shared.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Shared.DTOs;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProductService.Infrastructure.Services
 {

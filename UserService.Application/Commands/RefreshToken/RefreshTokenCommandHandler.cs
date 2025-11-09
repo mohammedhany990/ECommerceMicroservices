@@ -1,10 +1,9 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using System.Security.Claims;
 using UserService.Application.DTOs;
 using UserService.Domain.Entities;
 using UserService.Domain.Interfaces;
-using System.Security.Claims;
-using AutoMapper;
 
 namespace UserService.Application.Commands.RefreshToken
 {
@@ -32,7 +31,7 @@ namespace UserService.Application.Commands.RefreshToken
             if (string.IsNullOrEmpty(email))
                 throw new UnauthorizedAccessException("Invalid token claims.");
 
-            var user = await _repository.FirstOrDefaultAsync(e=> e.Email == email);
+            var user = await _repository.FirstOrDefaultAsync(e => e.Email == email);
             if (user is null)
                 throw new UnauthorizedAccessException("User not found.");
 

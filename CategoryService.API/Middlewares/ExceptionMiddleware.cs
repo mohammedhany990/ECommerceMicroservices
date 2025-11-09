@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using CategoryService.API.Models.Responses;
+﻿using CategoryService.API.Models.Responses;
+using FluentValidation;
 using System.Net;
 using System.Text.Json;
 

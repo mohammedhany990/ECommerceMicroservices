@@ -95,6 +95,33 @@
       "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "user"
+    },
+    // ===================== Cart Service =====================
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5171
+        }
+      ],
+      "UpstreamPathTemplate": "/cartswagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "cart"
+    },
+    {
+      "DownstreamPathTemplate": "/api/carts/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5171
+        }
+      ],
+      "UpstreamPathTemplate": "/carts/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "cart"
     }
   ],
   "GlobalConfiguration": {

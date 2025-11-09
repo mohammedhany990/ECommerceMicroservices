@@ -1,14 +1,11 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using UserService.API.Models.Responses;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.RefreshToken;
 using UserService.Application.Commands.RegisterUser;
 using UserService.Application.DTOs;
 using UserService.Application.Queries.GetUsers;
-using UserService.Domain.Interfaces;
 
 namespace UserService.API.Controllers
 {
@@ -79,6 +76,6 @@ namespace UserService.API.Controllers
 
     }
 
-   
+
 }
 

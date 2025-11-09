@@ -3,11 +3,6 @@ using CategoryService.Application.DTOs;
 using CategoryService.Domain.Data;
 using CategoryService.Domain.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CategoryService.Application.Queries.GetProducts
 {
@@ -21,7 +16,7 @@ namespace CategoryService.Application.Queries.GetProducts
             _repository = repository;
             _mapper = mapper;
         }
-        public  async Task<List<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
+        public async Task<List<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
         {
             var categories = await _repository.GetAllAsync();
 

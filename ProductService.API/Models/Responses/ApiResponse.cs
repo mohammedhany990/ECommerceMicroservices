@@ -15,11 +15,7 @@
             Message = message;
             Data = data;
         }
-        //public ApiResponse(int code, string? msg = null)
-        //{
-        //    StatusCode = code;
-        //    Message = msg ?? GetDefaultMsg(code);
-        //}
+
 
         public static ApiResponse<T> SuccessResponse(T data, string message = "Success", int statusCode = 200)
             => new(statusCode, true, message, data);
@@ -29,19 +25,6 @@
             {
                 Errors = errors
             };
-
-
-        //private string? GetDefaultMsg(int code)
-        //{
-        //    return code switch
-        //    {
-        //        400 => "Bad Request",
-        //        401 => "UnAuthorized",
-        //        404 => "Not Found",
-        //        500 => "Internal Server Error",
-        //        _ => null
-        //    };
-        //}
 
     }
 }

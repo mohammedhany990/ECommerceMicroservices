@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UserService.Domain.Interfaces;
+﻿using UserService.Domain.Interfaces;
 
 namespace UserService.Infrastructure.Services
 {

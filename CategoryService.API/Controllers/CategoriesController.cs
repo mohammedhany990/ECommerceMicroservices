@@ -3,7 +3,6 @@ using CategoryService.Application.DTOs;
 using CategoryService.Application.Queries.GetCategoryQuery;
 using CategoryService.Application.Queries.GetProducts;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CategoryService.API.Controllers
