@@ -22,15 +22,15 @@ namespace CategoryService.Infrastructure.Repository
         public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
 
 
-        public Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var entity = _dbSet.Find(id);
-            if (entity != null)
-            {
-                _dbSet.Remove(entity);
-            }
-            return Task.CompletedTask;
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null) return false;
+
+            _dbSet.Remove(entity);
+            return true;
         }
+
         public Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);

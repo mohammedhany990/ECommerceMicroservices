@@ -39,6 +39,17 @@
           "Url": "http://localhost:5171/swagger/v1/swagger.json"
         }
       ]
+    },
+    {
+      "Key": "shipping",
+      "Config": [
+        {
+          "Name": "Shipping Service",
+          "Version": "v1",
+          "Url": "http://localhost:5172/swagger/v1/swagger.json"
+        }
+      ]
     }
+
   ]
 }

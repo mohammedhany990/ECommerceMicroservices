@@ -30,35 +30,35 @@ namespace ProductService.API
 
             #region Swagger
             builder.Services.AddSwaggerGen(opt =>
-    {
-
-        var securitySchema = new OpenApiSecurityScheme
-        {
-            Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
-            Name = "Authorization",
-            In = ParameterLocation.Header,
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            Reference = new OpenApiReference
             {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
-        };
 
-        opt.AddSecurityDefinition("Bearer", securitySchema);
+                var securitySchema = new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
 
-        var securityRequirement = new OpenApiSecurityRequirement
-        {
-                    { securitySchema, new[] { "Bearer" } }
-        };
+                opt.AddSecurityDefinition("Bearer", securitySchema);
 
-        opt.AddSecurityRequirement(securityRequirement);
+                var securityRequirement = new OpenApiSecurityRequirement
+                {
+                            { securitySchema, new[] { "Bearer" } }
+                };
 
-        opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
+                opt.AddSecurityRequirement(securityRequirement);
 
-    }); 
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
+
+            });
             #endregion
 
 
@@ -69,10 +69,10 @@ namespace ProductService.API
 
 
 
-                builder.Services.AddAutoMapper(cfg =>
-                {
-                    cfg.AddProfile<MappingProfile>();
-                }, typeof(MappingProfile).Assembly);
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<MappingProfile>();
+            }, typeof(MappingProfile).Assembly);
 
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -105,7 +105,7 @@ namespace ProductService.API
                 {
                     var errors = actionContext.ModelState
                         .Where(e => e.Value?.Errors.Count > 0)
-                        .SelectMany(e => e.Value.Errors)
+                        .SelectMany(e => e.Value!.Errors)
                         .Select(m => m.ErrorMessage)
                         .ToList();
 

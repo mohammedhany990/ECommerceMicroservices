@@ -18,7 +18,7 @@ namespace ProductService.Application.Commands.DeleteProduct
         public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
             var product = await _repository.GetByIdAsync(request.ProductId);
-            if (product == null)
+            if (product is null)
                 return false;
 
             if (!string.IsNullOrEmpty(product.ImageUrl))
@@ -27,6 +27,7 @@ namespace ProductService.Application.Commands.DeleteProduct
             }
 
             await _repository.DeleteAsync(request.ProductId);
+
             await _repository.SaveChangesAsync();
 
             return true;

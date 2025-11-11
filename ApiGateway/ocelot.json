@@ -122,7 +122,63 @@
       "UpstreamPathTemplate": "/carts/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "cart"
+    },
+    // ===================== Shipping Service =====================
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5172
+        }
+      ],
+      "UpstreamPathTemplate": "/shippingswagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "shipping"
+    },
+    {
+      "DownstreamPathTemplate": "/api/shipments/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5172
+        }
+      ],
+      "UpstreamPathTemplate": "/shipments/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "shipping"
+    },
+    {
+      "DownstreamPathTemplate": "/api/shippingaddresses/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5172
+        }
+      ],
+      "UpstreamPathTemplate": "/shippingaddresses/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "shipping"
+    },
+    {
+      "DownstreamPathTemplate": "/api/shippingmethods/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5172
+        }
+      ],
+      "UpstreamPathTemplate": "/shippingmethods/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "shipping"
     }
+
+
+
   ],
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5240"

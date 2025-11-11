@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json;
 
@@ -30,7 +31,38 @@ namespace CategoryService.API
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            #region Swagger
+            builder.Services.AddSwaggerGen(opt =>
+            {
+
+                var securitySchema = new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+
+                opt.AddSecurityDefinition("Bearer", securitySchema);
+
+                var securityRequirement = new OpenApiSecurityRequirement
+                {
+                            { securitySchema, new[] { "Bearer" } }
+                };
+
+                opt.AddSecurityRequirement(securityRequirement);
+
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Category Service", Version = "v1.0" });
+
+            });
+            #endregion
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -44,7 +76,7 @@ namespace CategoryService.API
 
             });
 
-            //builder.Services.AddValidatorsFromAssembly(typeof(CreateProductCommandValidator).Assembly);
+            //builder.Services.AddValidatorsFromAssembly(typeof().Assembly);
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

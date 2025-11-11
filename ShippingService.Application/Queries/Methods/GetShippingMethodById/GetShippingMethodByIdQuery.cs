@@ -1,0 +1,16 @@
+﻿using MediatR;
+using ShippingService.Application.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ShippingService.Application.Queries.Methods.GetShippingMethodById
+{
+    public class GetShippingMethodByIdQuery : IRequest<ShippingMethodDto>
+    {
+        public Guid Id { get; set; }
+       
+    }
+}
