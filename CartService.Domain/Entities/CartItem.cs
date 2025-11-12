@@ -8,7 +8,7 @@ namespace CartService.Domain.Entities
 {
     public class CartItem
     {
-        public string ProductId { get; set; } = string.Empty;
+        public Guid ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; }

@@ -16,8 +16,9 @@ namespace CartService.Application.Mapping
         {
 
             CreateMap<Cart, CartDto>()
-                .ForMember(dest => dest.TotalPrice,
-                    opt => opt.MapFrom(src => src.Items.Sum(i => i.Quantity * i.UnitPrice)));
+                .ForMember(dest => dest.Subtotal,
+                    opt => opt.MapFrom(src => src.Items.Sum(i => i.Quantity * i.UnitPrice)))
+                .ForMember(dest => dest.TotalPrice, opt=>opt.MapFrom(i=> i.Subtotal + i.ShippingCost));
 
 
             CreateMap<CartItem, CartItemDto>().ReverseMap();

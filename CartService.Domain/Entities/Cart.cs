@@ -8,17 +8,19 @@ namespace CartService.Domain.Entities
 {
     public class Cart
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string UserId { get; set; } = string.Empty;
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid UserId { get; set; }
         public List<CartItem> Items { get; set; } = new List<CartItem>();
 
-        public decimal TotalPrice => Items.Sum(i => i.TotalPrice);
+        public decimal Subtotal => Items.Sum(i => i.UnitPrice * i.Quantity);
+        public decimal ShippingCost { get; set; } = 0;
+        public decimal TotalPrice => Subtotal + ShippingCost;
+
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
         public void AddItem(CartItem item)
         {
             var existingItem = Items.FirstOrDefault(i => i.ProductId == item.ProductId);
-
             if (existingItem != null)
             {
                 existingItem.Quantity += item.Quantity;
@@ -31,7 +33,7 @@ namespace CartService.Domain.Entities
             LastUpdated = DateTime.UtcNow;
         }
 
-        public void RemoveItem(string productId)
+        public void RemoveItem(Guid productId)
         {
             var item = Items.FirstOrDefault(i => i.ProductId == productId);
             if (item != null)
@@ -47,4 +49,5 @@ namespace CartService.Domain.Entities
             LastUpdated = DateTime.UtcNow;
         }
     }
+
 }

@@ -24,7 +24,7 @@ namespace CartService.API.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddItem([FromBody] CartItemDto item)
+        public async Task<IActionResult> AddItem([FromBody] Guid productId, [FromBody] int quantity)
         {
             var userId = GetUserId();
             if (userId is null)
@@ -34,12 +34,12 @@ namespace CartService.API.Controllers
                     StatusCodes.Status401Unauthorized
                 ));
 
-            var result = await _mediator.Send(new AddItemToCartCommand(userId.Value, item));
+            var result = await _mediator.Send(new AddItemToCartCommand(userId.Value, productId, quantity));
             return Ok(ApiResponse<CartDto>.SuccessResponse(result, "Item added successfully"));
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCart()
+        public async Task<IActionResult> GetCart(Guid? ShippingAddressId, Guid? ShippingMethodId)
         {
             var userId = GetUserId();
             if (userId is null)
@@ -49,12 +49,12 @@ namespace CartService.API.Controllers
                     StatusCodes.Status401Unauthorized
                 ));
 
-            var result = await _mediator.Send(new GetCartQuery(userId.Value));
+            var result = await _mediator.Send(new GetCartQuery{ UserId = userId.Value });
             return Ok(ApiResponse<CartDto>.SuccessResponse(result, "Cart retrieved successfully"));
         }
 
         [HttpDelete("{productId}")]
-        public async Task<IActionResult> RemoveItem(string productId)
+        public async Task<IActionResult> RemoveItem(Guid productId)
         {
             var userId = GetUserId();
             if (userId is null)
@@ -75,7 +75,7 @@ namespace CartService.API.Controllers
         }
 
         [HttpPut("{productId}")]
-        public async Task<IActionResult> UpdateItemQuantity(string productId, [FromQuery] int quantity)
+        public async Task<IActionResult> UpdateItemQuantity(Guid productId, [FromQuery] int quantity)
         {
             var userId = GetUserId();
             if (userId is null)
@@ -86,13 +86,13 @@ namespace CartService.API.Controllers
                 ));
 
             var result = await _mediator.Send(new UpdateItemQuantityCommand(userId.Value, productId, quantity));
-            if (!result)
+            if (result is null)
                 return NotFound(ApiResponse<object>.FailResponse(
                     new List<string> { "Item not found in cart" },
                     "Update failed",
                     StatusCodes.Status404NotFound));
 
-            return Ok(ApiResponse<object>.SuccessResponse(null!, "Item quantity updated successfully"));
+            return Ok(ApiResponse<object>.SuccessResponse(result, "Item quantity updated successfully"));
         }
 
 

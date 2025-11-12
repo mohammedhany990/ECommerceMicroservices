@@ -29,9 +29,7 @@ namespace CartService.Application.Commands.AddItemToCart
                     .GreaterThan(0)
                     .WithMessage("Quantity must be greater than zero.");
 
-                RuleFor(x => x.Item.UnitPrice)
-                    .GreaterThanOrEqualTo(0)
-                    .WithMessage("Price must be greater than or equal to zero.");
+                
             });
         }
     }

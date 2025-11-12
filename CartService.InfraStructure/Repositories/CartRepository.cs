@@ -19,7 +19,7 @@ namespace CartService.InfraStructure.Repositories
             _database = redis.GetDatabase();
         }
 
-        public async Task<Cart?> GetCartAsync(string userId)
+        public async Task<Cart?> GetCartAsync(Guid userId)
         {
             var data = await _database.StringGetAsync(GetKey(userId));
 
@@ -35,11 +35,11 @@ namespace CartService.InfraStructure.Repositories
             return cart;
         }
 
-        public async Task<bool> DeleteCartAsync(string userId)
+        public async Task<bool> DeleteCartAsync(Guid userId)
         {
             return await _database.KeyDeleteAsync(GetKey(userId));
         }
 
-        private string GetKey(string userId) => $"cart:{userId}";
+        private string GetKey(Guid userId) => $"cart:{userId}";
     }
 }

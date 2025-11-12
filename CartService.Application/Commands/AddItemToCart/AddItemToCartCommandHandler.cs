@@ -2,12 +2,11 @@
 using CartService.Application.DTOs;
 using CartService.Domain.Entities;
 using CartService.Domain.Interfaces;
-using CartService.InfraStructure.Repositories;
+using CartService.InfraStructure.Services;
 using MediatR;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CartService.Application.Commands.AddItemToCart
@@ -16,23 +15,43 @@ namespace CartService.Application.Commands.AddItemToCart
     {
         private readonly ICartRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ProductServiceClient _productServiceClient;
 
-        public AddItemToCartCommandHandler(ICartRepository repository, IMapper mapper)
+        public AddItemToCartCommandHandler(
+            ICartRepository repository,
+            IMapper mapper,
+            ProductServiceClient productServiceClient)
         {
             _repository = repository;
             _mapper = mapper;
+            _productServiceClient = productServiceClient;
         }
+
         public async Task<CartDto> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
         {
-            var cart = await _repository.GetCartAsync(request.UserId.ToString()) ?? new Cart { UserId = request.UserId.ToString() };
+            var product = await _productServiceClient.GetProductByIdAsync(request.ProductId);
+            if (product == null)
+                throw new Exception("Product not found");
+            if (product.QuantityInStock <= 0)
+                throw new Exception("Product is out of stock");
 
-            var item = _mapper.Map<CartItem>(request.Item);
+            var cart = await _repository.GetCartAsync(request.UserId) ?? new Cart { UserId = request.UserId };
+
+            var item = new CartItem
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                UnitPrice = product.Price,
+                Quantity = request.Quantity,
+                ImageUrl = product.ImageUrl
+            };
 
             cart.AddItem(item);
 
             var updatedCart = await _repository.UpdateCartAsync(cart);
 
-            return _mapper.Map<CartDto>(updatedCart);
+            var cartDto = _mapper.Map<CartDto>(updatedCart);
+            return cartDto;
         }
     }
 }

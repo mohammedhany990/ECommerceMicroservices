@@ -1,21 +1,20 @@
 ﻿using CartService.Application.DTOs;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CartService.Application.Commands.AddItemToCart
 {
     public class AddItemToCartCommand : IRequest<CartDto>
     {
-        public Guid UserId { get; set; }
-        public CartItemDto Item { get; set; }
-        public AddItemToCartCommand(Guid userId, CartItemDto item)
+        public AddItemToCartCommand(Guid userId, Guid productId, int quantity)
         {
             UserId = userId;
-            Item = item;
+            ProductId = productId;
+            Quantity = quantity;
         }
+
+        public Guid UserId { get; set; }
+        public Guid ProductId { get; set; }
+        public int Quantity { get; set; }
+
     }
 }

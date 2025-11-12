@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CartService.Domain\CartService.Domain.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

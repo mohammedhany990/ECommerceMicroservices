@@ -10,8 +10,8 @@ namespace CartService.Domain.Interfaces
 {
     public interface ICartRepository
     {
-        Task<Cart?> GetCartAsync(string userId);
+        Task<Cart?> GetCartAsync(Guid userId);
         Task<Cart> UpdateCartAsync(Cart cart);
-        Task<bool> DeleteCartAsync(string userId);
+        Task<bool> DeleteCartAsync(Guid userId);
     }
 }

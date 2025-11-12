@@ -10,11 +10,10 @@ namespace CartService.Application.Queries.GetCart
 {
     public class GetCartQuery : IRequest<CartDto>
     {
-        public Guid UserId { get; set; }
+      
 
-        public GetCartQuery(Guid userId)
-        {
-            UserId = userId;
-        }
+        public Guid UserId { get; set; }
+        public Guid? ShippingAddressId { get; set; }
+        public Guid? ShippingMethodId { get; set; }
     }
 }

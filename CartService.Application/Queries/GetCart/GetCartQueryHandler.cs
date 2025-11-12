@@ -2,12 +2,14 @@
 using CartService.Application.DTOs;
 using CartService.Domain.Entities;
 using CartService.Domain.Interfaces;
+using CartService.InfraStructure.Services;
 using MediatR;
-using System;
+using Shared.DTOs;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using CartDto = CartService.Application.DTOs.CartDto;
 
 namespace CartService.Application.Queries.GetCart
 {
@@ -15,23 +17,41 @@ namespace CartService.Application.Queries.GetCart
     {
         private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
+        private readonly ShippingServiceClient _shippingServiceClient;
 
-        public GetCartQueryHandler(ICartRepository cartRepository, IMapper mapper)
+        public GetCartQueryHandler(
+            ICartRepository cartRepository,
+            IMapper mapper,
+            ShippingServiceClient shippingServiceClient)
         {
             _cartRepository = cartRepository;
             _mapper = mapper;
+            _shippingServiceClient = shippingServiceClient;
         }
 
         public async Task<CartDto> Handle(GetCartQuery request, CancellationToken cancellationToken)
         {
-            var cart = await _cartRepository.GetCartAsync(request.UserId.ToString());
+            
+            var cart = await _cartRepository.GetCartAsync(request.UserId)
+                       ?? new Cart { UserId = request.UserId, Items = new List<CartItem>() };
 
-            if (cart == null)
+            var cartDto = _mapper.Map<CartDto>(cart);
+
+            if (request.ShippingAddressId.HasValue && request.ShippingMethodId.HasValue)
             {
-                cart = new Cart { UserId = request.UserId.ToString(), Items = new List<CartItem>() };
+                var shippingResult = await _shippingServiceClient.CalculateShippingCostAsync(
+                    new ShippingCostRequestDto(request.ShippingAddressId.Value, request.ShippingMethodId.Value));
+                    
+
+                cart.ShippingCost = shippingResult.Cost;
+
+                cartDto.ShippingCost = cart.ShippingCost;
+                cartDto.EstimatedDeliveryDays = shippingResult.EstimatedDeliveryDays;
+                cartDto.TotalPrice = cart.TotalPrice;
+                cartDto.Subtotal = cart.Subtotal;
             }
 
-            return _mapper.Map<CartDto>(cart);
+            return cartDto;
         }
     }
 }

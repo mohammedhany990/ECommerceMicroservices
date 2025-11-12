@@ -6,6 +6,7 @@ using CartService.Application.Commands.AddItemToCart;
 using CartService.Application.Mapping;
 using CartService.Domain.Interfaces;
 using CartService.InfraStructure.Repositories;
+using CartService.InfraStructure.Services;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -139,6 +140,16 @@ namespace CartService.API
                   };
               });
 
+
+            builder.Services.AddHttpClient<ProductServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5240/");
+            });
+
+            builder.Services.AddHttpClient<ShippingServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5240/");
+            });
 
 
             builder.Services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>

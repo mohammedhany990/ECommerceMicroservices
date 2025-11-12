@@ -1,40 +1,74 @@
-﻿using CartService.Domain.Interfaces;
+﻿using AutoMapper;
+using CartService.Application.DTOs;
+using CartService.Domain.Interfaces;
+using CartService.InfraStructure.Services;
 using MediatR;
+using Shared.DTOs;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using CartDto = CartService.Application.DTOs.CartDto;
 
 namespace CartService.Application.Commands.UpdateItemQuantity
 {
-    public class UpdateItemQuantityCommandHandler : IRequestHandler<UpdateItemQuantityCommand, bool>
+    public class UpdateItemQuantityCommandHandler : IRequestHandler<UpdateItemQuantityCommand, CartDto>
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ProductServiceClient _productServiceClient;
+        private readonly ShippingServiceClient _shippingServiceClient;
+        private readonly IMapper _mapper;
 
-        public UpdateItemQuantityCommandHandler(ICartRepository cartRepository)
+        public UpdateItemQuantityCommandHandler(
+            ICartRepository cartRepository,
+            ProductServiceClient productServiceClient,
+            ShippingServiceClient shippingServiceClient,
+            IMapper mapper)
         {
             _cartRepository = cartRepository;
+            _productServiceClient = productServiceClient;
+            _shippingServiceClient = shippingServiceClient;
+            _mapper = mapper;
         }
 
-        public async Task<bool> Handle(UpdateItemQuantityCommand request, CancellationToken cancellationToken)
+        public async Task<CartDto> Handle(UpdateItemQuantityCommand request, CancellationToken cancellationToken)
         {
-            var cart = await _cartRepository.GetCartAsync(request.UserId.ToString());
-            if (cart is null || cart.Items is null || !cart.Items.Any())
-                return false;
+            var cart = await _cartRepository.GetCartAsync(request.UserId);
+            if (cart == null)
+                return null;
+
+            if (cart.Items == null || !cart.Items.Any())
+                return null;
 
             var item = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
-            if (item is null)
-                return false;
+            if (item == null)
+                return null;
 
-            item.Quantity += request.Quantity;
+            var product = await _productServiceClient.GetProductByIdAsync(request.ProductId);
+            if (product == null)
+                throw new Exception("Product not found.");
 
-            if (item.Quantity <= 0)
+            var newQuantity = item.Quantity + request.Quantity;
+
+            if (newQuantity <= 0)
+            {
                 cart.Items.Remove(item);
+            }
+            else if (newQuantity > product.QuantityInStock)
+            {
+                throw new Exception("Insufficient stock.");
+            }
+            else
+            {
+                item.Quantity = newQuantity;
+            }
 
+            cart.LastUpdated = DateTime.UtcNow;
             await _cartRepository.UpdateCartAsync(cart);
 
-            return true;
+            var cartDto = _mapper.Map<CartDto>(cart);
+
+            return cartDto;
         }
     }
 }

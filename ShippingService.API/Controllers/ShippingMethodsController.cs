@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShippingService.API.Models.Responses;
+using ShippingService.Application.Commands.Methods.CalculateShippingCost;
 using ShippingService.Application.Commands.Methods.CreateShippingMethod;
 using ShippingService.Application.Commands.Methods.DeleteShippingMethod;
 using ShippingService.Application.Commands.Methods.UpdateShippingMethod;
@@ -63,7 +64,17 @@ namespace ShippingService.API.Controllers
             return Ok(ApiResponse<List<ShippingMethodDto>>.SuccessResponse(result, "Shipping methods retrieved successfully."));
         }
 
+
+        [HttpPost("calculate")]
+        public async Task<IActionResult> CalculateShippingCost([FromBody] CalculateShippingCostCommand command)
+        {
+            Shared.DTOs.ShippingCostResultDto result = await _mediator.Send(command);
+
+            return Ok(ApiResponse<Shared.DTOs.ShippingCostResultDto>.SuccessResponse(result, "Shipping Cost retrieved successfully."));
+        }
+
+
     }
 
-       
+
 }

@@ -17,12 +17,10 @@ namespace ProductService.API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductsController(IMediator mediator, IHttpClientFactory httpClientFactory)
+        public ProductsController(IMediator mediator)
         {
             _mediator = mediator;
-            _httpClientFactory = httpClientFactory;
         }
 
 
