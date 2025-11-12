@@ -41,6 +41,7 @@ namespace ShippingService.Application.Commands.Methods.CalculateShippingCost
             return new ShippingCostResultDto
             {
                 Cost = cost,
+                MethodName = method.Name,
                 EstimatedDeliveryDays = method.EstimatedDeliveryDays
             };
         }

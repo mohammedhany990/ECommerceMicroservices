@@ -20,7 +20,7 @@ namespace OrderService.Infrastructure.Services
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<ApiResponse<ProductDto>>($"api/products/{Id}");
+                var response = await _httpClient.GetFromJsonAsync<ApiResponse<ProductDto>>($"/products/{Id}");
                 return response?.Data;
             }
             catch(Exception ex)

@@ -9,10 +9,12 @@ using Microsoft.OpenApi.Models;
 using OrderService.API.Middlewares;
 using OrderService.API.Models.Responses;
 using OrderService.Application.Behaviors;
+using OrderService.Application.Commands.CreateOrder;
 using OrderService.Application.Mapping;
 using OrderService.Domain.Interfaces;
 using OrderService.Infrastructure.Data;
 using OrderService.Infrastructure.Repositories;
+using OrderService.Infrastructure.Services;
 using System.Text;
 using System.Text.Json;
 
@@ -63,13 +65,13 @@ namespace OrderService.API
             #endregion
 
 
-            //builder.Services.AddMediatR(cfg =>
-            //{
-            //    cfg.RegisterServicesFromAssembly(typeof(CreateShipmentCommandHandler).Assembly);
+            builder.Services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(CreateOrderCommandHandler).Assembly);
 
-            //});
+            });
 
-            //builder.Services.AddValidatorsFromAssembly(typeof(CreateShipmentCommandValidator).Assembly);
+            builder.Services.AddValidatorsFromAssembly(typeof(CreateOrderCommandValidator).Assembly);
 
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -163,6 +165,23 @@ namespace OrderService.API
                        }
                    };
                });
+
+            builder.Services.AddHttpClient<ProductServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5240/");
+            });
+
+            builder.Services.AddHttpClient<ShippingServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5240/");
+            });
+           
+
+            builder.Services.AddHttpClient<CartServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5240/");
+            });
+
 
 
 

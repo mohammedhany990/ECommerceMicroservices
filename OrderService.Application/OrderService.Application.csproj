@@ -19,9 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\" />
-    <Folder Include="DTOs\" />
-    <Folder Include="Queries\" />
+    <Folder Include="Commands\CancelOrder\" />
+    <Folder Include="Commands\UpdateOrder\" />
+    <Folder Include="Queries\GetOrderById\" />
   </ItemGroup>
 
 </Project>

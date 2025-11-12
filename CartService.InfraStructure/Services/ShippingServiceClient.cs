@@ -21,7 +21,7 @@ namespace CartService.InfraStructure.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/ShippingMethods/calculate", request);
+                var response = await _httpClient.PostAsJsonAsync("/ShippingMethods/calculate", request);
 
                 response.EnsureSuccessStatusCode();
 

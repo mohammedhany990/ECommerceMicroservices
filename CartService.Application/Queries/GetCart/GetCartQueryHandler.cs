@@ -47,8 +47,9 @@ namespace CartService.Application.Queries.GetCart
 
                 cartDto.ShippingCost = cart.ShippingCost;
                 cartDto.EstimatedDeliveryDays = shippingResult.EstimatedDeliveryDays;
-                cartDto.TotalPrice = cart.TotalPrice;
                 cartDto.Subtotal = cart.Subtotal;
+                cartDto.TotalPrice = cartDto.Subtotal + cartDto.ShippingCost;
+
             }
 
             return cartDto;

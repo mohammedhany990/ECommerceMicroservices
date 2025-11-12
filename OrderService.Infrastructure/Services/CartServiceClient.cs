@@ -17,14 +17,20 @@ namespace OrderService.Infrastructure.Services
             _httpClient = httpClient;
         }
 
-        public async Task<CartDto?> GetCartForUser()
+        public async Task<CartDto?> GetCartForUser(string token)
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<ApiResponse<CartDto>>($"api/carts");
-                return response?.Data;
+                var request = new HttpRequestMessage(HttpMethod.Get, $"/carts/");
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<CartDto>>();
+                return apiResponse?.Data;
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }

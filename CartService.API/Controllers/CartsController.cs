@@ -24,7 +24,7 @@ namespace CartService.API.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddItem([FromBody] Guid productId, [FromBody] int quantity)
+        public async Task<IActionResult> AddItem([FromBody] AddItemToCartDto dto)
         {
             var userId = GetUserId();
             if (userId is null)
@@ -34,22 +34,22 @@ namespace CartService.API.Controllers
                     StatusCodes.Status401Unauthorized
                 ));
 
-            var result = await _mediator.Send(new AddItemToCartCommand(userId.Value, productId, quantity));
+            var result = await _mediator.Send(new AddItemToCartCommand(userId.Value, dto.ProductId, dto.Quantity));
             return Ok(ApiResponse<CartDto>.SuccessResponse(result, "Item added successfully"));
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCart(Guid? ShippingAddressId, Guid? ShippingMethodId)
+        public async Task<IActionResult> GetCart(Guid? shippingAddressId, Guid? shippingMethodId)
         {
             var userId = GetUserId();
-            if (userId is null)
+            if (userId == Guid.Empty)
                 return Unauthorized(ApiResponse<object>.FailResponse(
                     new List<string> { "Invalid or missing user ID in token." },
                     "Unauthorized",
                     StatusCodes.Status401Unauthorized
                 ));
 
-            var result = await _mediator.Send(new GetCartQuery{ UserId = userId.Value });
+            var result = await _mediator.Send(new GetCartQuery(userId.Value, shippingAddressId, shippingMethodId));
             return Ok(ApiResponse<CartDto>.SuccessResponse(result, "Cart retrieved successfully"));
         }
 

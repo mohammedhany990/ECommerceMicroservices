@@ -15,22 +15,14 @@ namespace CartService.Application.Commands.AddItemToCart
                 .NotEmpty()
                 .WithMessage("UserId is required.");
 
-            RuleFor(x => x.Item)
-                .NotNull()
-                .WithMessage("Cart item is required.");
+            RuleFor(x => x.ProductId)
+                .NotEmpty()
+                .WithMessage("ProductId is required.");
 
-            When(x => x.Item != null, () =>
-            {
-                RuleFor(x => x.Item.ProductId)
-                    .NotEmpty()
-                    .WithMessage("ProductId is required.");
+            RuleFor(x => x.Quantity)
+                .GreaterThan(0)
+                .WithMessage("Quantity must be greater than zero.");
 
-                RuleFor(x => x.Item.Quantity)
-                    .GreaterThan(0)
-                    .WithMessage("Quantity must be greater than zero.");
-
-                
-            });
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Shared.DTOs
     public class ShippingCostResultDto
     {
         public decimal Cost { get; set; }
+        public string MethodName { get; set; }
         public int EstimatedDeliveryDays { get; set; }
     }
 }

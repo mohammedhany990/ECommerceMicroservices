@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using OrderService.Application.DTOs;
+using OrderService.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,12 @@ namespace OrderService.Application.Mapping
     {
         public MappingProfile()
         {
-            
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+
+            CreateMap<OrderItem, OrderItemDto>();
+
         }
     }
 }
