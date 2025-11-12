@@ -32,8 +32,18 @@ namespace OrderService.Infrastructure.Repositories
             return await query.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IQueryable<T>>? include = null)
+        {
+            IQueryable<T> query = _dbContext.Set<T>().AsNoTracking();
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+            if (include != null)
+                query = include(query);
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.ToListAsync();
+        }
 
 
         public async Task<T> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);

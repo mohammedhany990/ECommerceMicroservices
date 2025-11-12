@@ -61,7 +61,6 @@ namespace OrderService.Application.Commands.CreateOrder
             var subtotal = orderItems.Sum(item => item.UnitPrice * item.Quantity);
 
 
-
             var shippingResult = await _shippingServiceClient.CalculateShippingCostAsync(
                 new ShippingCostRequestDto(request.ShippingAddressId, request.ShippingMethodId));
 

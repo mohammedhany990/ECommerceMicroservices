@@ -40,6 +40,30 @@ namespace CartService.InfraStructure.Repositories
             return await _database.KeyDeleteAsync(GetKey(userId));
         }
 
+
+        public async Task<bool> ClearCartAsync(Guid userId)
+        {
+            return await _database.KeyDeleteAsync(GetKey(userId));
+        }
+
+        public async Task<Cart> RestoreItemsAsync(Guid userId, List<CartItem> items)
+        {
+            var cart = await GetCartAsync(userId) ?? new Cart { UserId = userId, Items = new List<CartItem>() };
+
+            foreach (var item in items)
+            {
+                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == item.ProductId);
+                if (existingItem != null)
+                    existingItem.Quantity += item.Quantity;
+                else
+                    cart.Items.Add(item);
+            }
+
+            await UpdateCartAsync(cart);
+            return cart;
+        }
+
+
         private string GetKey(Guid userId) => $"cart:{userId}";
     }
 }

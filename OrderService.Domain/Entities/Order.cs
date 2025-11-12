@@ -13,8 +13,10 @@ namespace OrderService.Domain.Entities
         public Guid UserId { get; set; }
 
         public Guid ShippingAddressId { get; set; }
+        public Guid ShippingMethodId { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
@@ -22,10 +24,12 @@ namespace OrderService.Domain.Entities
         public decimal ShippingCost { get; set; }
         public decimal TotalAmount { get; set; }
 
-        public string ShippingMethod { get; set; } = string.Empty;
-        public string PaymentMethod { get; set; } = string.Empty;
+        public string? ShippingMethod { get; set; } = string.Empty;
+        public string? PaymentMethod { get; set; } = string.Empty;
+        public DateTime? ExpectedDeliveryDate { get; set; }
 
         public List<OrderItem> Items { get; set; } = new();
+
     }
 
 

@@ -28,7 +28,12 @@ namespace OrderService.API
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             #region Swagger
@@ -182,6 +187,7 @@ namespace OrderService.API
                 client.BaseAddress = new Uri("http://localhost:5240/");
             });
 
+            
 
 
 

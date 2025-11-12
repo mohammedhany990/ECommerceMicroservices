@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace OrderService.Application.Queries.GetOrdersByUser
 {
-    public class GetOrderByUserIdQuery : IRequest<OrderDto>
+    public class GetOrderByUserIdQuery : IRequest<IReadOnlyList<OrderDto>>
     {
         public Guid UserId { get; set; }
-        public string AuthToken { get; set; } = string.Empty;
-        public GetOrderByUserIdQuery(Guid userId, string authToken)
+        public GetOrderByUserIdQuery(Guid userId)
         {
             UserId = userId;
-            AuthToken = authToken;
         }
     }
 }

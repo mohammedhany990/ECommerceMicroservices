@@ -1,6 +1,8 @@
 ﻿using CartService.API.Models.Responses;
 using CartService.Application.Commands.AddItemToCart;
+using CartService.Application.Commands.ClearCart;
 using CartService.Application.Commands.RemoveItem;
+using CartService.Application.Commands.RestoreItemsToCart;
 using CartService.Application.Commands.UpdateItemQuantity;
 using CartService.Application.DTOs;
 using CartService.Application.Queries.GetCart;
@@ -93,6 +95,42 @@ namespace CartService.API.Controllers
                     StatusCodes.Status404NotFound));
 
             return Ok(ApiResponse<object>.SuccessResponse(result, "Item quantity updated successfully"));
+        }
+
+        [HttpDelete("clear")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ClearCart()
+        {
+            var userId = GetUserId();
+            if (userId is null)
+                return Unauthorized(ApiResponse<object>.FailResponse(
+                    new List<string> { "Invalid or missing user ID in token." },
+                    "Unauthorized",
+                    StatusCodes.Status401Unauthorized
+                ));
+
+            await _mediator.Send(new ClearCartCommand(userId.Value));
+            return Ok(ApiResponse<object>.SuccessResponse(null!, "Cart cleared successfully"));
+        }
+
+
+        [HttpPost("restore")]
+        [ProducesResponseType(typeof(ApiResponse<CartDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RestoreItemsToCart([FromBody] List<CartItemDto> items)
+        {
+            var userId = GetUserId();
+            if (userId is null)
+                return Unauthorized(ApiResponse<object>.FailResponse(
+                    new List<string> { "Invalid or missing user ID in token." },
+                    "Unauthorized",
+                    StatusCodes.Status401Unauthorized
+                ));
+
+            var cart = await _mediator.Send(new RestoreItemsToCartCommand(userId.Value, items));
+
+            return Ok(ApiResponse<CartDto>.SuccessResponse(cart, "Items restored to cart successfully"));
         }
 
 

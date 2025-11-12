@@ -45,7 +45,7 @@ namespace CartService.Application.Queries.GetCart
 
                 cart.ShippingCost = shippingResult.Cost;
 
-                cartDto.ShippingCost = cart.ShippingCost;
+                cartDto.ShippingCost = cart?.ShippingCost ?? 0;
                 cartDto.EstimatedDeliveryDays = shippingResult.EstimatedDeliveryDays;
                 cartDto.Subtotal = cart.Subtotal;
                 cartDto.TotalPrice = cartDto.Subtotal + cartDto.ShippingCost;

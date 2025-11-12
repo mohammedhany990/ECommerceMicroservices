@@ -27,6 +27,10 @@ namespace OrderService.Infrastructure.Data.Configurations
                    .HasColumnType("timestamp with time zone")
                    .HasDefaultValueSql("NOW()");
 
+            builder.Property(x => x.UpdatedAt)
+                   .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                   .ValueGeneratedOnAddOrUpdate();
+
             builder.Property(o => o.Status)
                    .IsRequired()
                    .HasConversion<string>();

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace OrderService.Application.Queries.GetOrdersByUser
 {
-    public class GetOrderByUserIdQueryHandler : IRequestHandler<GetOrderByUserIdQuery, OrderDto>
+    public class GetOrderByUserIdQueryHandler : IRequestHandler<GetOrderByUserIdQuery, IReadOnlyList<OrderDto>>
     {
         private readonly IRepository<Order> _repository;
         private readonly IMapper _mapper;
@@ -24,19 +24,16 @@ namespace OrderService.Application.Queries.GetOrdersByUser
             _repository = repository;
             _mapper = mapper;
         }
-        public async Task<OrderDto> Handle(GetOrderByUserIdQuery request, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<OrderDto>> Handle(GetOrderByUserIdQuery request, CancellationToken cancellationToken)
         {
-            var order = await _repository.FirstOrDefaultAsync(x => x.UserId == request.UserId,
-                include: q => q.Include(o => o.Items));
+            var userOrders = await _repository.GetAllAsync(x => x.UserId == request.UserId,
+                include: q=>q.Include(i=>i.Items));
 
-            if (order is null)
-            {
-                throw new KeyNotFoundException("User with the specified ID was not found.");
-            }
+            if (!userOrders.Any())
+                return new List<OrderDto>();
 
-            var orderDto = _mapper.Map<OrderDto>(order);
-
-            return orderDto;
+            var orderDtos = _mapper.Map<IReadOnlyList<OrderDto>>(userOrders);
+            return orderDtos;
         }
     }
 }
