@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36603.0
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProductService", "ProductService", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -82,6 +82,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShippingService.Application", "ShippingService.Application\ShippingService.Application.csproj", "{58C4CA60-2B67-446D-8A13-F4D6EDEA18C0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShippingService.API", "ShippingService.API\ShippingService.API.csproj", "{16B85560-5F97-4B78-A499-578CCBCCD694}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.Domain", "NotificationService.Domain\NotificationService.Domain.csproj", "{9E163333-7B8E-4E5C-84CD-9BC208D3376D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.Application", "NotificationService.Application\NotificationService.Application.csproj", "{1E0743AB-2AD3-4179-ACCA-F630264B7733}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.Infrastructure", "NotificationService.Infrastructure\NotificationService.Infrastructure.csproj", "{4B6BFCDE-3391-4BE9-8204-EE4A577619B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService.API", "NotificationService.API\NotificationService.API.csproj", "{3F827D4E-489D-4491-B71E-AF35A53E4DD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -209,6 +217,22 @@ Global
 		{16B85560-5F97-4B78-A499-578CCBCCD694}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16B85560-5F97-4B78-A499-578CCBCCD694}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16B85560-5F97-4B78-A499-578CCBCCD694}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E163333-7B8E-4E5C-84CD-9BC208D3376D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E163333-7B8E-4E5C-84CD-9BC208D3376D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E163333-7B8E-4E5C-84CD-9BC208D3376D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E163333-7B8E-4E5C-84CD-9BC208D3376D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E0743AB-2AD3-4179-ACCA-F630264B7733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E0743AB-2AD3-4179-ACCA-F630264B7733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E0743AB-2AD3-4179-ACCA-F630264B7733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E0743AB-2AD3-4179-ACCA-F630264B7733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B6BFCDE-3391-4BE9-8204-EE4A577619B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B6BFCDE-3391-4BE9-8204-EE4A577619B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B6BFCDE-3391-4BE9-8204-EE4A577619B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B6BFCDE-3391-4BE9-8204-EE4A577619B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F827D4E-489D-4491-B71E-AF35A53E4DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F827D4E-489D-4491-B71E-AF35A53E4DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F827D4E-489D-4491-B71E-AF35A53E4DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F827D4E-489D-4491-B71E-AF35A53E4DD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -243,6 +267,10 @@ Global
 		{671DF3D2-F29C-450D-842F-BB2365029D7A} = {1646BDBE-54AF-4412-976B-995DA9438856}
 		{58C4CA60-2B67-446D-8A13-F4D6EDEA18C0} = {1646BDBE-54AF-4412-976B-995DA9438856}
 		{16B85560-5F97-4B78-A499-578CCBCCD694} = {1646BDBE-54AF-4412-976B-995DA9438856}
+		{9E163333-7B8E-4E5C-84CD-9BC208D3376D} = {9ED764B0-F05D-4F9D-A0F1-2ECE07BF5681}
+		{1E0743AB-2AD3-4179-ACCA-F630264B7733} = {9ED764B0-F05D-4F9D-A0F1-2ECE07BF5681}
+		{4B6BFCDE-3391-4BE9-8204-EE4A577619B4} = {9ED764B0-F05D-4F9D-A0F1-2ECE07BF5681}
+		{3F827D4E-489D-4491-B71E-AF35A53E4DD4} = {9ED764B0-F05D-4F9D-A0F1-2ECE07BF5681}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AE5F7C9A-807B-49D9-9698-0AE7CA462316}

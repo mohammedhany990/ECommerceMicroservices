@@ -11,12 +11,12 @@ namespace OrderService.Application.Commands.CreateOrder
     public class CreateOrderCommand : IRequest<OrderDto>
     {
         public Guid UserId { get; set; }
+        public string Email { get; set; }
+        public string AuthToken { get; set; }
+       
         public Guid ShippingAddressId { get; set; }
-
         public Guid ShippingMethodId { get; set; }
 
-        public string? PaymentMethodId { get; set; }
-        public string AuthToken { get; set; } = string.Empty;
-
     }
+
 }

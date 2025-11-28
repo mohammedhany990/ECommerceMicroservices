@@ -10,10 +10,15 @@ namespace OrderService.Application.Queries.GetOrdersByUser
 {
     public class GetOrderByUserIdQuery : IRequest<IReadOnlyList<OrderDto>>
     {
-        public Guid UserId { get; set; }
-        public GetOrderByUserIdQuery(Guid userId)
+        public GetOrderByUserIdQuery(Guid userId, string authToken)
         {
             UserId = userId;
+            AuthToken = authToken;
         }
+
+        public Guid UserId { get; set; }
+        public string AuthToken { get; set; }
+
+        
     }
 }

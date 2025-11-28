@@ -18,8 +18,4 @@
     <ProjectReference Include="..\OrderService.Infrastructure\OrderService.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Commands\CancelOrder\" />
-  </ItemGroup>
-
 </Project>

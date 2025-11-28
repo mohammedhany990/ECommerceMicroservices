@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShippingService.API.Models.Responses;
@@ -24,6 +25,7 @@ namespace ShippingService.API.Controllers
 
         // POST: api/Shipments
         [HttpPost]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Create([FromBody] CreateShipmentCommand command)
         {
             var result = await _mediator.Send(command);
@@ -32,6 +34,7 @@ namespace ShippingService.API.Controllers
 
         // PUT: api/Shipments
         [HttpPut]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Update([FromBody] UpdateShipmentCommand command)
         {
             var result = await _mediator.Send(command);
@@ -40,6 +43,7 @@ namespace ShippingService.API.Controllers
 
         // DELETE: api/Shipments/{id}
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var result = await _mediator.Send(new DeleteShipmentCommand { Id = id });

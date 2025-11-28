@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OrderService.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrderService.Infrastructure.Data.Configurations
 {
@@ -13,7 +8,6 @@ namespace OrderService.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-
             builder.HasKey(o => o.Id);
 
             builder.Property(o => o.UserId)
@@ -27,7 +21,7 @@ namespace OrderService.Infrastructure.Data.Configurations
                    .HasColumnType("timestamp with time zone")
                    .HasDefaultValueSql("NOW()");
 
-            builder.Property(x => x.UpdatedAt)
+            builder.Property(o => o.UpdatedAt)
                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
                    .ValueGeneratedOnAddOrUpdate();
 
@@ -47,11 +41,15 @@ namespace OrderService.Infrastructure.Data.Configurations
                    .IsRequired()
                    .HasColumnType("numeric(18,2)");
 
-            builder.Property(o => o.ShippingMethod)
-                   .HasMaxLength(100);
+            builder.Property(o => o.ShippingMethodId)
+                   .IsRequired();
 
-            builder.Property(o => o.PaymentMethod)
-                   .HasMaxLength(100);
+
+            builder.Property(o => o.PaymentStatus)
+                  .IsRequired()
+                  .HasConversion<string>();
+
+            builder.Property(o => o.PaymentId);
 
             builder.HasMany(o => o.Items)
                    .WithOne(i => i.Order)

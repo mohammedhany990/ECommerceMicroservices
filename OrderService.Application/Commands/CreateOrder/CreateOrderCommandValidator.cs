@@ -24,11 +24,7 @@ namespace OrderService.Application.Commands.CreateOrder
                 .WithMessage("ShippingId method is required.");
                 
 
-            //RuleFor(x => x.PaymentMethodId)
-            //    .NotEmpty()
-            //    .WithMessage("Payment method is required.")
-            //    .MaximumLength(100);
-
+      
             
         }
     }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShippingService.API.Models.Responses;
@@ -14,6 +15,7 @@ namespace ShippingService.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ShippingMethodsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -58,6 +60,7 @@ namespace ShippingService.API.Controllers
 
         // GET: api/ShippingMethods
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var result = await _mediator.Send(new GetShippingMethodsQuery());
@@ -66,6 +69,7 @@ namespace ShippingService.API.Controllers
 
 
         [HttpPost("calculate")]
+        [AllowAnonymous]
         public async Task<IActionResult> CalculateShippingCost([FromBody] CalculateShippingCostCommand command)
         {
             Shared.DTOs.ShippingCostResultDto result = await _mediator.Send(command);

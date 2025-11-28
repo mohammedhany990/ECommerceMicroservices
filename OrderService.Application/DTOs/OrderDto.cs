@@ -21,10 +21,13 @@ namespace OrderService.Application.DTOs
         public decimal TotalAmount { get; set; }
 
         public string? ShippingMethod { get; set; } = string.Empty;
-        public string? PaymentMethod { get; set; } = string.Empty;
         public DateTime? ExpectedDeliveryDate { get; set; }
+
+        public string PaymentStatus { get; set; } = "Pending"; 
+        public Guid? PaymentId { get; set; }
 
         public List<OrderItemDto> Items { get; set; } = new();
     }
+
 
 }

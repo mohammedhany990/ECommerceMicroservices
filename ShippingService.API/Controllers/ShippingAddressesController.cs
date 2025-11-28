@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShippingService.API.Models.Responses;
@@ -13,6 +14,7 @@ namespace ShippingService.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ShippingAddressesController : ControllerBase
     {
         private readonly IMediator _mediator;

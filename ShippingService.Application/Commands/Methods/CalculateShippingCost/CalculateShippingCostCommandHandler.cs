@@ -42,7 +42,8 @@ namespace ShippingService.Application.Commands.Methods.CalculateShippingCost
             {
                 Cost = cost,
                 MethodName = method.Name,
-                EstimatedDeliveryDays = method.EstimatedDeliveryDays
+                EstimatedDeliveryDays = method.EstimatedDeliveryDays,
+                ShippingMethodId = request.ShippingMethodId
             };
         }
     }

@@ -24,8 +24,11 @@ namespace OrderService.Domain.Entities
         public decimal ShippingCost { get; set; }
         public decimal TotalAmount { get; set; }
 
-        public string? ShippingMethod { get; set; } = string.Empty;
-        public string? PaymentMethod { get; set; } = string.Empty;
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+        public Guid? PaymentId { get; set; }
+
+
+
         public DateTime? ExpectedDeliveryDate { get; set; }
 
         public List<OrderItem> Items { get; set; } = new();

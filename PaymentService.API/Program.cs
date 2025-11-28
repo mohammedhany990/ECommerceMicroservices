@@ -1,35 +1,41 @@
-
+using PaymentService.API.Extensions;
+using PaymentService.API.Middlewares;
 namespace PaymentService.API
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
+            var builder = WebApplication.CreateBuilder(args)
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
+            builder.Services.AddEndpointsApiExplorer();
+
+            builder.Services
+                .ConfigureApiBehavior()
+                .AddSwaggerWithJwt()
+                .AddCustomRateLimiting()
+                .AddDatabaseServices(builder.Configuration)
+                .AddApplicationServices()
+                .AddRabbitMqServices()
+                .AddJwtAuthentication(builder.Configuration)
+                .AddStripeConfiguration(builder.Configuration)
+                .AddHttpClients();
+       
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
-
-
+            app.UseRateLimiter();
             app.MapControllers();
-
             app.Run();
         }
     }

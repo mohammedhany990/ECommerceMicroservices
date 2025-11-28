@@ -3,6 +3,7 @@ using MediatR;
 using UserService.Application.DTOs;
 using UserService.Domain.Entities;
 using UserService.Domain.Interfaces;
+using UserService.Infrastructure.MessagingBus;
 
 namespace UserService.Application.Commands.RegisterUser
 {
@@ -12,16 +13,19 @@ namespace UserService.Application.Commands.RegisterUser
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IRabbitMqPublisher<CreateNotificationEvent> _publisher;
 
         public RegisterUserCommandHandler(IRepository<User> repository,
             IMapper mapper,
             ITokenService tokenService,
-            IPasswordHasher passwordHasher)
+            IPasswordHasher passwordHasher,
+            IRabbitMqPublisher<CreateNotificationEvent> publisher)
         {
             _repository = repository;
             _mapper = mapper;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
+            _publisher = publisher;
         }
         public async Task<AuthResponseDto> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
@@ -46,6 +50,16 @@ namespace UserService.Application.Commands.RegisterUser
             await _repository.SaveChangesAsync();
 
             var mappedUser = _mapper.Map<UserDto>(user);
+
+            var notificationEvent = new CreateNotificationEvent
+            {
+                UserId = user.Id,
+                To = user.Email,
+                Subject = "Welcome to Our Service!",
+                Body = $"Hello {user.Username},\n\nThank you for registering with our service!"
+            };
+
+            _publisher.Publish(notificationEvent);
 
             return new AuthResponseDto
             {

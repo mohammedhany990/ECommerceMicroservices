@@ -36,9 +36,12 @@ namespace OrderService.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("ExpectedDeliveryDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PaymentMethod")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("ShippingAddressId")
                         .HasColumnType("uuid");
@@ -46,9 +49,8 @@ namespace OrderService.Infrastructure.Data.Migrations
                     b.Property<decimal>("ShippingCost")
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<string>("ShippingMethod")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid>("ShippingMethodId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Status")
                         .IsRequired()

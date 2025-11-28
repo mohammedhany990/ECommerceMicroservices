@@ -1,10 +1,13 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using UserService.API.Models.Responses;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.RefreshToken;
 using UserService.Application.Commands.RegisterUser;
 using UserService.Application.DTOs;
+using UserService.Application.Queries.GetUserEmailById;
 using UserService.Application.Queries.GetUsers;
 
 namespace UserService.API.Controllers
@@ -21,6 +24,7 @@ namespace UserService.API.Controllers
             _mediator = mediator;
         }
         [HttpGet]
+        [EnableRateLimiting("slow")]
         [ProducesResponseType(typeof(ApiResponse<List<UserDto>>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResponse<List<UserDto>>>> GetAllUsers()
         {
@@ -29,6 +33,7 @@ namespace UserService.API.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("register-per-ip")]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Register([FromBody] RegisterUserCommand command)
         {
@@ -37,6 +42,7 @@ namespace UserService.API.Controllers
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("login-per-ip")]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Login([FromBody] LoginUserCommand command)
         {
@@ -48,12 +54,24 @@ namespace UserService.API.Controllers
 
 
         [HttpPost("refresh")]
+        [EnableRateLimiting("per-user")]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Refresh([FromBody] RefreshTokenCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<AuthResponseDto>.SuccessResponse(result, "Token refreshed successfully", 200));
         }
+
+        [HttpGet("{userId}/email")]
+        [EnableRateLimiting("per-user")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<string>>> GetUserEmail(GetUserEmailByIdQuery request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(ApiResponse<string>.SuccessResponse(result, "User email retrieved successfully", 200));
+        }
+
 
 
 

@@ -1,5 +1,6 @@
 {
   "Routes": [
+
     // ===================== Product Service =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
@@ -25,7 +26,13 @@
       ],
       "UpstreamPathTemplate": "/products/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "product"
+      "SwaggerKey": "product",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 120
+      }
     },
     {
       "DownstreamPathTemplate": "/images/products/{everything}",
@@ -38,7 +45,13 @@
       ],
       "UpstreamPathTemplate": "/images/Products/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "product"
+      "SwaggerKey": "product",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 200
+      }
     },
 
     // ===================== Category Service =====================
@@ -66,7 +79,13 @@
       ],
       "UpstreamPathTemplate": "/categories/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "category"
+      "SwaggerKey": "category",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 80
+      }
     },
 
     // ===================== User Service =====================
@@ -94,8 +113,15 @@
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "user"
+      "SwaggerKey": "user",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 40
+      }
     },
+
     // ===================== Cart Service =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
@@ -121,8 +147,15 @@
       ],
       "UpstreamPathTemplate": "/carts/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "cart"
+      "SwaggerKey": "cart",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "30s",
+        "PeriodTimespan": 30,
+        "Limit": 50
+      }
     },
+
     // ===================== Shipping Service =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
@@ -176,6 +209,7 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "shipping"
     },
+
     // ===================== Order Service =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
@@ -201,14 +235,88 @@
       ],
       "UpstreamPathTemplate": "/orders/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "order"
+      "SwaggerKey": "order",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 60
+      }
+    },
+
+    // ===================== Payment Service =====================
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5202
+        }
+      ],
+      "UpstreamPathTemplate": "/paymentswagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "payment"
+    },
+    {
+      "DownstreamPathTemplate": "/api/payments/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5202
+        }
+      ],
+      "UpstreamPathTemplate": "/payments/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "payment",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "30s",
+        "PeriodTimespan": 30,
+        "Limit": 20
+      }
+    },
+    // ===================== Notifications Service =====================
+    {
+      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5222
+        }
+      ],
+      "UpstreamPathTemplate": "/notificationswagger/v1/swagger.json",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "notification"
+    },
+    {
+      "DownstreamPathTemplate": "/api/notifications/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5222
+        }
+      ],
+      "UpstreamPathTemplate": "/notifications/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "notification",
+      "RateLimitOptions": {
+        "EnableRateLimiting": true,
+        "Period": "30s",
+        "PeriodTimespan": 30,
+        "Limit": 20
+      }
     }
-
-
-
-
   ],
+
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5240"
+    "BaseUrl": "http://localhost:5240",
+    "RateLimitOptions": {
+      "QuotaExceededMessage": "Too many requests. Slow down!",
+      "HttpStatusCode": 429
+    }
   }
 }

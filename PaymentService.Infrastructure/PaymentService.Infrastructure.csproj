@@ -17,11 +17,14 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-		<PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+		<PackageReference Include="Stripe.net" Version="49.2.0" />
+
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\PaymentService.Domain\PaymentService.Domain.csproj" />
+	  <ProjectReference Include="..\Shared\Shared.csproj" />
 	</ItemGroup>
 
 </Project>

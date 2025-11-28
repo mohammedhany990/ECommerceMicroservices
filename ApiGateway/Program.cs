@@ -1,6 +1,9 @@
+﻿using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 namespace ApiGateway
 {
@@ -14,7 +17,6 @@ namespace ApiGateway
                 .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
                 .AddJsonFile("ocelot.SwaggerEndPoints.json", optional: false, reloadOnChange: true);
 
-            builder.Services.AddOcelot();
             builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
             builder.Services.AddSwaggerGen(opt =>
@@ -42,6 +44,12 @@ namespace ApiGateway
 
                 opt.SwaggerDoc("v1", new OpenApiInfo { Title = "API Gateway", Version = "v1.0" });
             });
+
+
+            builder.Services.AddOcelot(builder.Configuration);
+
+           
+
 
             var app = builder.Build();
 
