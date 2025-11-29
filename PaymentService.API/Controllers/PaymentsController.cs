@@ -13,7 +13,6 @@ using PaymentService.Application.Queries.GetPaymentByOrderId;
 using PaymentService.Application.Queries.GetPaymentsByUser;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace PaymentService.API.Controllers
@@ -36,15 +35,8 @@ namespace PaymentService.API.Controllers
         [EnableRateLimiting("payment-concurrency")]
         [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreatePayment([FromBody][Required] Guid orderId)
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentCommand command)
         {
-            var command = new CreatePaymentCommand
-            {
-                OrderId = orderId,
-                UserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
-                AuthToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "").Trim(),
-            };
-
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<PaymentDto>.SuccessResponse(result, "Payment created successfully."));
         }

@@ -13,9 +13,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
 	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-	</ItemGroup>
+
 	<ItemGroup>
 	  <ProjectReference Include="..\NotificationService.Application\NotificationService.Application.csproj" />
 	  <ProjectReference Include="..\NotificationService.Infrastructure\NotificationService.Infrastructure.csproj" />

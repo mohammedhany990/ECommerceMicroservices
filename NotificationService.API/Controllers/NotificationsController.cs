@@ -1,12 +1,8 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Commands.CreateNotification;
-using NotificationService.Infrastructure.Messaging;
 using RabbitMQ.Client;
-using System.Text;
+using Shared.Messaging;
 using System.Text.Json;
-using System.Threading.Channels;
 
 namespace NotificationService.API.Controllers
 {

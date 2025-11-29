@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using MediatR;
+using Shared.Messaging;
 using UserService.Application.DTOs;
 using UserService.Domain.Entities;
 using UserService.Domain.Interfaces;
-using UserService.Infrastructure.MessagingBus;
 
 namespace UserService.Application.Commands.RegisterUser
 {

@@ -2,7 +2,7 @@
 using CartService.Application.DTOs;
 using CartService.Domain.Entities;
 using CartService.Domain.Interfaces;
-using CartService.InfraStructure.Services;
+using CartService.Infrastructure.Messaging;
 using MediatR;
 using System;
 using System.Linq;
@@ -15,21 +15,22 @@ namespace CartService.Application.Commands.AddItemToCart
     {
         private readonly ICartRepository _repository;
         private readonly IMapper _mapper;
-        private readonly ProductServiceClient _productServiceClient;
+        private readonly ProductServiceRpcClient _productServiceRpcClient;
 
         public AddItemToCartCommandHandler(
             ICartRepository repository,
             IMapper mapper,
-            ProductServiceClient productServiceClient)
+            ProductServiceRpcClient productServiceRpcClient
+            )
         {
             _repository = repository;
             _mapper = mapper;
-            _productServiceClient = productServiceClient;
+            _productServiceRpcClient = productServiceRpcClient;
         }
 
         public async Task<CartDto> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
         {
-            var product = await _productServiceClient.GetProductByIdAsync(request.ProductId);
+            var product = await _productServiceRpcClient.GetProductByIdAsync(request.ProductId);
             if (product == null)
                 throw new Exception("Product not found");
             if (product.QuantityInStock <= 0)

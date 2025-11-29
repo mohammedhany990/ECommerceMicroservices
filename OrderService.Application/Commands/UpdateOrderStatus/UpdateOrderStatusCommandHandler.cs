@@ -4,13 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
-using OrderService.Infrastructure.Interfaces;
-using OrderService.Infrastructure.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PaymentService.Infrastructure.Messaging;
+using Shared.Messaging;
 
 namespace OrderService.Application.Commands.UpdateOrderStatus
 {
@@ -19,19 +14,19 @@ namespace OrderService.Application.Commands.UpdateOrderStatus
         private readonly IRepository<Order> _repository;
         private readonly IMapper _mapper;
         private readonly IRabbitMqPublisher<CreateNotificationEvent> _rabbitMqPublisher;
-        private readonly UserServiceClient _userServiceClient;
+        private readonly UserServiceRpcClient _userServiceRpcClient;
 
         public UpdateOrderStatusCommandHandler(
             IRepository<Order> repository,
             IMapper mapper,
             IRabbitMqPublisher<CreateNotificationEvent> rabbitMqPublisher,
-            UserServiceClient userServiceClient
+            UserServiceRpcClient userServiceRpcClient
             )
         {
             _repository = repository;
             _mapper = mapper;
             _rabbitMqPublisher = rabbitMqPublisher;
-            _userServiceClient = userServiceClient;
+            _userServiceRpcClient = userServiceRpcClient;
         }
 
         public async Task<OrderDto> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
@@ -56,7 +51,7 @@ namespace OrderService.Application.Commands.UpdateOrderStatus
             if (order.Status == OrderStatus.Cancelled)
             {
 
-                var userEmail = await _userServiceClient.GetUserEmailAsync(order.UserId);
+                var userEmail = await _userServiceRpcClient.GetUserEmailAsync(order.UserId);
                 var notificationEvent = new CreateNotificationEvent
                 {
                     UserId = order.UserId,

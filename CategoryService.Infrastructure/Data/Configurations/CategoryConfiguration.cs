@@ -1,4 +1,4 @@
-﻿using CategoryService.Domain.Data;
+﻿using CategoryService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

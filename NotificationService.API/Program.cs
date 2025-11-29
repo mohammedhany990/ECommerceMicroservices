@@ -12,9 +12,9 @@ using NotificationService.Application.Behaviors;
 using NotificationService.Application.Commands.CreateNotification;
 using NotificationService.Domain.Interfaces;
 using NotificationService.Infrastructure.Data;
-using NotificationService.Infrastructure.Messaging;
 using NotificationService.Infrastructure.Repositories;
 using NotificationService.Infrastructure.Services;
+using Shared.Messaging;
 
 namespace NotificationService.API
 {

@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
-using OrderService.Infrastructure.MessageBus;
-using OrderService.Infrastructure.Services;
+using OrderService.Infrastructure.Messaging;
 
 
 namespace OrderService.Application.Commands.UpdateOrder
@@ -14,21 +13,21 @@ namespace OrderService.Application.Commands.UpdateOrder
     {
         private readonly IRepository<Order> _repository;
         private readonly IMapper _mapper;
-        private readonly ShippingServiceClient _shippingServiceClient;
-        private readonly PaymentServiceClient _paymentServiceClient;
         private readonly CartServiceRpcClient _cartServiceRpcClient;
+        private readonly ShippingServiceRpcClient _shippingServiceRpcClient;
+        private readonly PaymentServiceRpcClient _paymentServiceRpcClient;
 
         public UpdateOrderCommandHandler(IRepository<Order> repository,
             IMapper mapper,
-            ShippingServiceClient shippingServiceClient,
-            PaymentServiceClient paymentServiceClient,
-            CartServiceRpcClient cartServiceRpcClient)
+            CartServiceRpcClient cartServiceRpcClient,
+            ShippingServiceRpcClient shippingServiceRpcClient,
+            PaymentServiceRpcClient paymentServiceRpcClient)
         {
             _repository = repository;
             _mapper = mapper;
-            _shippingServiceClient = shippingServiceClient;
-            _paymentServiceClient = paymentServiceClient;
             _cartServiceRpcClient = cartServiceRpcClient;
+            _shippingServiceRpcClient = shippingServiceRpcClient;
+            _paymentServiceRpcClient = paymentServiceRpcClient;
         }
 
         public async Task<OrderDto> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -46,7 +45,7 @@ namespace OrderService.Application.Commands.UpdateOrder
 
             if (request.ShippingMethodId.HasValue)
             {
-                var shippingMethod = await _shippingServiceClient.GetShippingMethodByIdAsync(request.ShippingMethodId.Value, request.AuthToken);
+                var shippingMethod = await _shippingServiceRpcClient.GetShippingMethodByIdAsync(request.ShippingMethodId.Value);
                 if (shippingMethod is not null)
                 {
                     order.ShippingMethodId = shippingMethod.Id;
@@ -57,10 +56,10 @@ namespace OrderService.Application.Commands.UpdateOrder
             }
             if (request.ShippingMethodId.HasValue || request.ShippingAddressId.HasValue)
             {
-                var shippingResult = await _shippingServiceClient.CalculateShippingCostAsync(
+                var shippingResult = await _shippingServiceRpcClient.CalculateShippingCostAsync(
                     new Shared.DTOs.ShippingCostRequestDto(
                         request.ShippingAddressId ?? order.ShippingAddressId,
-                        request.ShippingMethodId ?? order.ShippingMethodId), request.AuthToken);
+                        request.ShippingMethodId ?? order.ShippingMethodId));
 
                 if (shippingResult is not null)
                 {
@@ -74,7 +73,7 @@ namespace OrderService.Application.Commands.UpdateOrder
 
             if (order.PaymentId.HasValue)
             {
-                var payment = await _paymentServiceClient.GetPaymentStatusAsync(order.Id, request.AuthToken);
+                var payment = await _paymentServiceRpcClient.GetPaymentStatusAsync(order.Id);
 
                 if (payment is null)
                 {
@@ -99,7 +98,7 @@ namespace OrderService.Application.Commands.UpdateOrder
                 order.ExpectedDeliveryDate = request.ExpectedDeliveryDate.Value;
 
 
-            if (order.Status == OrderStatus.Cancelled && order.Items.Any() && !string.IsNullOrEmpty(request.AuthToken))
+            if (order.Status == OrderStatus.Cancelled && order.Items.Any())
             {
                 var cartItems = order.Items.Select(i => new Shared.DTOs.CartItemDto
                 {

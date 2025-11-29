@@ -2,13 +2,14 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentService.Application.Behaviors;
-using PaymentService.Application.Commands.CreateOrder;
 using PaymentService.Application.Commands.CreatePayment;
+using PaymentService.Application.Events;
 using PaymentService.Application.Mapping;
 using PaymentService.Domain.Interfaces;
-
+using PaymentService.Infrastructure.Messaging;
 using PaymentService.Infrastructure.Repositories;
 using PaymentService.Infrastructure.Services;
+using Shared.Messaging;
 
 namespace PaymentService.API.Extensions
 {
@@ -16,6 +17,10 @@ namespace PaymentService.API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+
+            
+
+
             services.AddScoped<IStripeWebhookService, StripeWebhookService>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
 
@@ -25,6 +30,13 @@ namespace PaymentService.API.Extensions
             {
                 cfg.RegisterServicesFromAssembly(typeof(CreatePaymentCommand).Assembly);
             });
+
+            
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(PaymentSucceededEventHandler).Assembly);
+            });
+
 
             services.AddValidatorsFromAssembly(typeof(CreatePaymentCommandValidator).Assembly);
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

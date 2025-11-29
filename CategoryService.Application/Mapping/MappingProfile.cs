@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CategoryService.Application.DTOs;
-using CategoryService.Domain.Data;
+using CategoryService.Domain.Entities;
 
 namespace CategoryService.Application.Mapping
 {

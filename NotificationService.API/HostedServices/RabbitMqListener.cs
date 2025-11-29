@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using NotificationService.Application.Commands.CreateNotification;
-using NotificationService.Infrastructure.Messaging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Shared.Messaging;
 using System.Text.Json;
 
 public class RabbitMqListener : BackgroundService

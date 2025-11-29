@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using PaymentService.Application.DTOs;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
+using PaymentService.Infrastructure.Messaging;
 using PaymentService.Infrastructure.Services;
 using Stripe;
 using System;
@@ -19,19 +20,24 @@ namespace PaymentService.Application.Commands.CreatePayment
         private readonly IPaymentRepository _repository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly OrderServiceClient _orderServiceClient;
+        private readonly OrderServiceRpcClient _orderServiceRpcClient;
 
-        public CreatePaymentCommandHandler(IPaymentRepository repository, IMapper mapper, IConfiguration configuration, OrderServiceClient orderServiceClient)
+        public CreatePaymentCommandHandler(
+            IPaymentRepository repository,
+            IMapper mapper,
+             IConfiguration configuration,
+             OrderServiceRpcClient orderServiceRpcClient
+            )
         {
             _repository = repository;
             _mapper = mapper;
             _configuration = configuration;
-            _orderServiceClient = orderServiceClient;
+            _orderServiceRpcClient = orderServiceRpcClient;
         }
 
         public async Task<PaymentDto> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
         {
-            var order = await _orderServiceClient.GetOrderByIdAsync(request.OrderId, request.AuthToken);
+            var order = await _orderServiceRpcClient.GetOrderByIdAsync(request.OrderId);
 
             if (order == null)
                 throw new Exception("Order not found or invalid.");

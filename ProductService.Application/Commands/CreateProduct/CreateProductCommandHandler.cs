@@ -3,6 +3,7 @@ using MediatR;
 using ProductService.Application.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Interfaces;
+using ProductService.Infrastructure.Messaging;
 using ProductService.Infrastructure.Services;
 
 namespace ProductService.Application.Commands.CreateProduct
@@ -12,22 +13,23 @@ namespace ProductService.Application.Commands.CreateProduct
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _repository;
         private readonly IFileService _fileService;
-        private readonly CategoryServiceClient _categoryServiceClient;
+        private readonly CategoryServiceRpcClient _categoryServiceRpcClient;
 
         public CreateProductCommandHandler(
             IMapper mapper,
             IRepository<Product> repository,
             IFileService fileService,
-            CategoryServiceClient categoryServiceClient)
+            CategoryServiceRpcClient categoryServiceRpcClient
+            )
         {
             _mapper = mapper;
             _repository = repository;
             _fileService = fileService;
-            _categoryServiceClient = categoryServiceClient;
+            _categoryServiceRpcClient = categoryServiceRpcClient;
         }
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var category = await _categoryServiceClient.GetCategoryByIdAsync(request.CategoryId);
+            var category = await _categoryServiceRpcClient.GetCategoryByIdAsync(request.CategoryId);
             if (category is null)
                 throw new Exception("Invalid Category Id. The category does not exist.");
 

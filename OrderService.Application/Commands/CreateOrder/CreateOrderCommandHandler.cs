@@ -3,9 +3,8 @@ using MediatR;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
-using OrderService.Infrastructure.Interfaces;
-using OrderService.Infrastructure.MessageBus;
-using OrderService.Infrastructure.Services;
+using OrderService.Infrastructure.Messaging;
+using Shared.Messaging;
 
 namespace OrderService.Application.Commands.CreateOrder
 {
@@ -14,24 +13,24 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IRepository<Order> _orderRepo;
         private readonly IMapper _mapper;
         private readonly CartServiceRpcClient _cartServiceRpcClient;
-        private readonly ProductServiceClient _productServiceClient;
-        private readonly ShippingServiceClient _shippingServiceClient;
         private readonly IRabbitMqPublisher<CreateNotificationEvent> _publisher;
+        private readonly ProductServiceRpcClient _productServiceRpcClient;
+        private readonly ShippingServiceRpcClient _shippingServiceRpcClient;
 
         public CreateOrderCommandHandler(
             IRepository<Order> orderRepo,
             IMapper mapper,
            CartServiceRpcClient cartServiceRpcClient,
-            ProductServiceClient productServiceClient,
-            ShippingServiceClient shippingServiceClient,
-            IRabbitMqPublisher<CreateNotificationEvent> publisher)
+            IRabbitMqPublisher<CreateNotificationEvent> publisher,
+            ProductServiceRpcClient productServiceRpcClient,
+            ShippingServiceRpcClient shippingServiceRpcClient)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
             _cartServiceRpcClient = cartServiceRpcClient;
-            _productServiceClient = productServiceClient;
-            _shippingServiceClient = shippingServiceClient;
             _publisher = publisher;
+            _productServiceRpcClient = productServiceRpcClient;
+            _shippingServiceRpcClient = shippingServiceRpcClient;
         }
         public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
@@ -45,7 +44,7 @@ namespace OrderService.Application.Commands.CreateOrder
 
             foreach (var item in cart.Items)
             {
-                var product = await _productServiceClient.GetProductByIdAsync(item.ProductId);
+                var product = await _productServiceRpcClient.GetProductByIdAsync(item.ProductId);
                 if (product is null)
                     throw new Exception($"Product with ID {item.ProductId} not found.");
 
@@ -61,8 +60,8 @@ namespace OrderService.Application.Commands.CreateOrder
             var subtotal = orderItems.Sum(item => item.UnitPrice * item.Quantity);
 
 
-            var shippingResult = await _shippingServiceClient.CalculateShippingCostAsync(
-                new Shared.DTOs.ShippingCostRequestDto(request.ShippingAddressId, request.ShippingMethodId), request.AuthToken);
+            var shippingResult = await _shippingServiceRpcClient.CalculateShippingCostAsync(
+                new Shared.DTOs.ShippingCostRequestDto(request.ShippingAddressId, request.ShippingMethodId));
 
             if (shippingResult == null)
                 throw new Exception("Unable to calculate shipping cost.");

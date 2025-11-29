@@ -4,8 +4,10 @@ using ProductService.Application.Behaviors;
 using ProductService.Application.Commands.CreateProduct;
 using ProductService.Application.Mapping;
 using ProductService.Domain.Interfaces;
+using ProductService.Infrastructure.Messaging;
 using ProductService.Infrastructure.Repository;
 using ProductService.Infrastructure.Services;
+using Shared.Messaging;
 
 namespace ProductService.API.Extensions
 {
@@ -13,6 +15,15 @@ namespace ProductService.API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            services.AddSingleton<RpcClient>();
+            services.AddHostedService<ProductServiceRpcListener>();
+            services.AddSingleton<CategoryServiceRpcClient>();
+            services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
+            services.AddSingleton(sp => sp.GetRequiredService<IRabbitMqConnection>().CreateChannel());
+            services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
+
+            services.AddSingleton(sp => sp.GetRequiredService<IRabbitMqConnection>().CreateChannel());
+
             services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile).Assembly);
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

@@ -3,6 +3,7 @@ using MediatR;
 using ProductService.Application.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Interfaces;
+using ProductService.Infrastructure.Messaging;
 using ProductService.Infrastructure.Services;
 
 namespace ProductService.Application.Queries.GetProducts
@@ -11,16 +12,17 @@ namespace ProductService.Application.Queries.GetProducts
     {
         private readonly IRepository<Product> _repository;
         private readonly IMapper _mapper;
-        private readonly CategoryServiceClient _categoryServiceClient;
+        private readonly CategoryServiceRpcClient _categoryServiceRpcClient;
 
         public GetProductsQueryHandler(
             IRepository<Product> repository,
             IMapper mapper,
-            CategoryServiceClient categoryServiceClient)
+            CategoryServiceRpcClient categoryServiceRpcClient
+            )
         {
             _repository = repository;
             _mapper = mapper;
-            _categoryServiceClient = categoryServiceClient;
+            _categoryServiceRpcClient = categoryServiceRpcClient;
         }
 
         public async Task<List<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
@@ -33,7 +35,7 @@ namespace ProductService.Application.Queries.GetProducts
 
             var productDtos = _mapper.Map<List<ProductDto>>(products);
 
-            var categories = await _categoryServiceClient.GetAllCategoriesAsync();
+            var categories = await _categoryServiceRpcClient.GetAllCategoriesAsync();
 
             var categoryLookup = categories.ToDictionary(c => c.Id, c => c);
 

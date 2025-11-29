@@ -1,4 +1,6 @@
-﻿using PaymentService.Infrastructure.MessagingBus;
+﻿using PaymentService.Infrastructure.Messaging;
+using Shared.Messaging;
+using PaymentService.Infrastructure.Messaging;
 
 namespace PaymentService.API.Extensions
 {
@@ -8,8 +10,13 @@ namespace PaymentService.API.Extensions
         {
             services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
             services.AddSingleton(sp => sp.GetRequiredService<IRabbitMqConnection>().CreateChannel());
-
             services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
+            services.AddHostedService<PaymentServiceRpcListener>();
+            services.AddSingleton<OrderServiceRpcClient>();
+            services.AddSingleton<UserServiceRpcClient>();
+            services.AddSingleton<RpcClient>();
+
+
 
             return services;
         }

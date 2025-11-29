@@ -3,6 +3,7 @@ using MediatR;
 using ProductService.Application.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Interfaces;
+using ProductService.Infrastructure.Messaging;
 using ProductService.Infrastructure.Services;
 
 namespace ProductService.Application.Queries.GetProductById
@@ -11,13 +12,17 @@ namespace ProductService.Application.Queries.GetProductById
     {
         private readonly IRepository<Product> _repository;
         private readonly IMapper _mapper;
-        private readonly CategoryServiceClient _categoryServiceClient;
+        private readonly CategoryServiceRpcClient _categoryServiceRpcClient;
 
-        public GetProductByIdQueryHandler(IRepository<Product> repository, IMapper mapper, CategoryServiceClient categoryServiceClient)
+        public GetProductByIdQueryHandler(
+            IRepository<Product> repository,
+            IMapper mapper,
+            CategoryServiceRpcClient categoryServiceRpcClient
+            )
         {
             _repository = repository;
             _mapper = mapper;
-            _categoryServiceClient = categoryServiceClient;
+            _categoryServiceRpcClient = categoryServiceRpcClient;
         }
         public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
@@ -28,7 +33,7 @@ namespace ProductService.Application.Queries.GetProductById
             }
             var productDto = _mapper.Map<ProductDto>(product);
 
-            var category = await _categoryServiceClient.GetCategoryByIdAsync(product.CategoryId);
+            var category = await _categoryServiceRpcClient.GetCategoryByIdAsync(product.CategoryId);
 
             productDto.CategoryName = category?.Name ?? "Unknown";
             productDto.CategoryDescription = category?.Description ?? "No description available";

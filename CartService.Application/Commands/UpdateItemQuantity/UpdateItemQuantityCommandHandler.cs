@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CartService.Application.DTOs;
 using CartService.Domain.Interfaces;
-using CartService.InfraStructure.Services;
+using CartService.Infrastructure.Messaging;
 using MediatR;
 using Shared.DTOs;
 using System;
@@ -15,19 +15,16 @@ namespace CartService.Application.Commands.UpdateItemQuantity
     public class UpdateItemQuantityCommandHandler : IRequestHandler<UpdateItemQuantityCommand, CartDto>
     {
         private readonly ICartRepository _cartRepository;
-        private readonly ProductServiceClient _productServiceClient;
-        private readonly ShippingServiceClient _shippingServiceClient;
+        private readonly ProductServiceRpcClient _productServiceRpcClient;
         private readonly IMapper _mapper;
 
         public UpdateItemQuantityCommandHandler(
             ICartRepository cartRepository,
-            ProductServiceClient productServiceClient,
-            ShippingServiceClient shippingServiceClient,
+            ProductServiceRpcClient productServiceRpcClient,
             IMapper mapper)
         {
             _cartRepository = cartRepository;
-            _productServiceClient = productServiceClient;
-            _shippingServiceClient = shippingServiceClient;
+            _productServiceRpcClient = productServiceRpcClient;
             _mapper = mapper;
         }
 
@@ -44,7 +41,7 @@ namespace CartService.Application.Commands.UpdateItemQuantity
             if (item == null)
                 return null;
 
-            var product = await _productServiceClient.GetProductByIdAsync(request.ProductId);
+            var product = await _productServiceRpcClient.GetProductByIdAsync(request.ProductId);
             if (product == null)
                 throw new Exception("Product not found.");
 

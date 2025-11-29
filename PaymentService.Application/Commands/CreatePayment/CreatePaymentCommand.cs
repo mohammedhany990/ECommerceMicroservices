@@ -13,7 +13,6 @@ namespace PaymentService.Application.Commands.CreatePayment
         public Guid OrderId { get; set; }
         public Guid UserId { get; set; }
         public string Currency { get; set; } = "usd";
-        public string AuthToken { get; set; } = string.Empty;
     }
 
 }

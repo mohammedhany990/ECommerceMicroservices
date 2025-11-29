@@ -40,10 +40,6 @@ namespace OrderService.API.Controllers
                 Email = User.FindFirstValue(ClaimTypes.Email),
                 ShippingAddressId = dto.ShippingAddressId,
                 ShippingMethodId = dto.ShippingMethodId,
-                AuthToken = Request.Headers["Authorization"]
-                                    .ToString()
-                                    .Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase)
-                                    .Trim()
             };
             var order = await _mediator.Send(command);
             return Ok(ApiResponse<OrderDto>.SuccessResponse(order, "Order created successfully"));
@@ -55,12 +51,8 @@ namespace OrderService.API.Controllers
         public async Task<IActionResult> GetOrdersForCurrentUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var token = Request.Headers["Authorization"]
-                                    .ToString()
-                                    .Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase)
-                                    .Trim();
-
-            var orders = await _mediator.Send(new GetOrderByUserIdQuery(Guid.Parse(userId), token));
+            
+            var orders = await _mediator.Send(new GetOrderByUserIdQuery(Guid.Parse(userId)));
 
             if (orders == null || !orders.Any())
                 return NotFound(ApiResponse<object>.FailResponse(null!, "No orders found for this user."));
@@ -98,8 +90,6 @@ namespace OrderService.API.Controllers
             if (request.Status.HasValue && !Enum.IsDefined(typeof(OrderStatus), request.Status.Value))
                 return BadRequest(ApiResponse<object>.FailResponse(null!, "Invalid status value."));
 
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            request.AuthToken = token;
 
             var order = await _mediator.Send(request);
 

@@ -33,7 +33,6 @@ namespace ShippingService.API
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseRateLimiter();
 
             app.MapControllers();
 

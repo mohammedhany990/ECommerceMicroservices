@@ -16,8 +16,6 @@ namespace OrderService.Application.Commands.UpdateOrder
         public Guid? ShippingMethodId { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
         public OrderStatus? Status { get; set; }
-
-        public string? AuthToken { get; set; } = string.Empty;
     }
 
 }

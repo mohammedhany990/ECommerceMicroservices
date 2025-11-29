@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
-using OrderService.Infrastructure.Services;
+using OrderService.Infrastructure.Messaging;
 
 namespace OrderService.Application.Queries.GetOrdersByUser
 {
@@ -12,45 +12,62 @@ namespace OrderService.Application.Queries.GetOrdersByUser
     {
         private readonly IRepository<Order> _repository;
         private readonly IMapper _mapper;
-        private readonly ShippingServiceClient _shippingServiceClient;
-        private readonly PaymentServiceClient _paymentServiceClient;
+        private readonly ShippingServiceRpcClient _shippingServiceRpcClient;
+        private readonly PaymentServiceRpcClient _paymentServiceRpcClient;
 
-        public GetOrderByUserIdQueryHandler(IRepository<Order> repository,
+        public GetOrderByUserIdQueryHandler(
+            IRepository<Order> repository,
             IMapper mapper,
-            ShippingServiceClient shippingServiceClient,
-            PaymentServiceClient paymentServiceClient)
+            ShippingServiceRpcClient shippingServiceRpcClient,
+            PaymentServiceRpcClient paymentServiceRpcClient)
         {
-            _repository = repository;
-            _mapper = mapper;
-            _shippingServiceClient = shippingServiceClient;
-            _paymentServiceClient = paymentServiceClient;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _shippingServiceRpcClient = shippingServiceRpcClient ?? throw new ArgumentNullException(nameof(shippingServiceRpcClient));
+            _paymentServiceRpcClient = paymentServiceRpcClient ?? throw new ArgumentNullException(nameof(paymentServiceRpcClient));
         }
+
         public async Task<IReadOnlyList<OrderDto>> Handle(GetOrderByUserIdQuery request, CancellationToken cancellationToken)
         {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+
             var userOrders = await _repository.GetAllAsync(
                 x => x.UserId == request.UserId,
-                include: q => q.Include(i => i.Items)
+                include: q => q.Include(o => o.Items)
             );
 
-            if (!userOrders.Any())
-                return new List<OrderDto>();
+            if (userOrders == null || !userOrders.Any())
+                return Array.Empty<OrderDto>();
 
             var orderDtos = _mapper.Map<IReadOnlyList<OrderDto>>(userOrders);
 
-            var tasks = orderDtos.Select(async orderDto =>
+            var enrichmentTasks = orderDtos.Select(async orderDto =>
             {
-                var payment = await _paymentServiceClient.GetPaymentStatusAsync(orderDto.Id, request.AuthToken);
-                orderDto.PaymentId = payment?.PaymentId ?? Guid.Empty;
-                orderDto.PaymentStatus = payment?.Status ?? "Unknown";
+                try
+                {
+                    var paymentTask = _paymentServiceRpcClient.GetPaymentStatusAsync(orderDto.Id);
+                    var shippingTask = _shippingServiceRpcClient.GetShippingMethodByIdAsync(orderDto.ShippingMethodId);
 
-                var shippingMethod = await _shippingServiceClient.GetShippingMethodByIdAsync(orderDto.ShippingMethodId, request.AuthToken);
-                orderDto.ShippingMethod = shippingMethod?.Name ?? "Unknown";
-            }).ToList();
+                    await Task.WhenAll(paymentTask, shippingTask);
 
-            await Task.WhenAll(tasks);
+                    var payment = paymentTask.Result;
+                    orderDto.PaymentId = payment?.PaymentId ?? Guid.Empty;
+                    orderDto.PaymentStatus = payment?.Status ?? "Unknown";
+
+                    var shippingMethod = shippingTask.Result;
+                    orderDto.ShippingMethod = shippingMethod?.Name ?? "Unknown";
+                }
+                catch (Exception ex)
+                {
+                    orderDto.PaymentStatus = "Error";
+                    orderDto.ShippingMethod = "Error";
+                }
+            });
+
+            await Task.WhenAll(enrichmentTasks);
 
             return orderDtos;
         }
-
     }
+
 }

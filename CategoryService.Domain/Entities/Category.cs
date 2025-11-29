@@ -1,4 +1,4 @@
-﻿namespace CategoryService.Domain.Data
+﻿namespace CategoryService.Domain.Entities
 {
     public class Category
     {

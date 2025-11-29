@@ -4,8 +4,9 @@ using Microsoft.Extensions.Configuration;
 using PaymentService.Application.DTOs;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
-using PaymentService.Infrastructure.MessagingBus;
+using PaymentService.Infrastructure.Messaging;
 using PaymentService.Infrastructure.Services;
+using Shared.Messaging;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -19,26 +20,24 @@ namespace PaymentService.Application.Commands.RefundPayment
     public class RefundPaymentCommandHandler : IRequestHandler<RefundPaymentCommand, PaymentDto>
     {
         private readonly IPaymentRepository _repository;
-        private readonly OrderServiceClient _orderServiceClient;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRabbitMqPublisher<CreateNotificationEvent> _rabbitMqPublisher;
-        private readonly UserServiceClient _userServiceClient;
+        private readonly UserServiceRpcClient _userServiceRpcClient;
 
         public RefundPaymentCommandHandler(
             IPaymentRepository repository,
-            OrderServiceClient orderServiceClient,
             IMapper mapper,
             IConfiguration configuration,
             IRabbitMqPublisher<CreateNotificationEvent> rabbitMqPublisher,
-            UserServiceClient userServiceClient)
+            UserServiceRpcClient userServiceRpcClient
+            )
         {
             _repository = repository;
-            _orderServiceClient = orderServiceClient;
             _mapper = mapper;
             _configuration = configuration;
             _rabbitMqPublisher = rabbitMqPublisher;
-            _userServiceClient = userServiceClient;
+            _userServiceRpcClient = userServiceRpcClient;
         }
 
         public async Task<PaymentDto> Handle(RefundPaymentCommand request, CancellationToken cancellationToken)
@@ -74,7 +73,7 @@ namespace PaymentService.Application.Commands.RefundPayment
             await _repository.UpdateAsync(payment);
             await _repository.SaveChangesAsync();
 
-            var userEmail = await _userServiceClient.GetUserEmailAsync(payment.UserId);
+            var userEmail = await _userServiceRpcClient.GetUserEmailAsync(payment.UserId);
 
             var notificationEvent = new CreateNotificationEvent
             {

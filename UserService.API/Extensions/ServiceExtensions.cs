@@ -2,14 +2,15 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Messaging;
 using UserService.Application.Behaviors;
 using UserService.Application.Commands.RegisterUser;
 using UserService.Application.Mapping;
 using UserService.Domain.Interfaces;
-using UserService.Infrastructure;
 using UserService.Infrastructure.Configurations;
 using UserService.Infrastructure.Data;
-using UserService.Infrastructure.MessagingBus;
+using UserService.Infrastructure.Messaging;
+using UserService.Infrastructure.Repositories;
 using UserService.Infrastructure.Services;
 
 
@@ -20,11 +21,7 @@ namespace UserService.API.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-
            
-
-
-            services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
 
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<ITokenService, TokenService>();

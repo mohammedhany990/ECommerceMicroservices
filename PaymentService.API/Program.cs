@@ -6,7 +6,7 @@ namespace PaymentService.API
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args)
+            var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
 
@@ -18,10 +18,9 @@ namespace PaymentService.API
                 .AddCustomRateLimiting()
                 .AddDatabaseServices(builder.Configuration)
                 .AddApplicationServices()
-                .AddRabbitMqServices()
                 .AddJwtAuthentication(builder.Configuration)
                 .AddStripeConfiguration(builder.Configuration)
-                .AddHttpClients();
+                .AddRabbitMqServices();
        
             var app = builder.Build();
 
