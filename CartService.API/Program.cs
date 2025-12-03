@@ -5,14 +5,14 @@ namespace CartService.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public  static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-           
-           
+
+
             builder.Services
                 .AddSwaggerWithJwt()
                 .AddApplicationServices()
@@ -20,6 +20,7 @@ namespace CartService.API
                 .AddJwtAuthentication(builder.Configuration)
                 .ConfigureApiBehavior()
                 .AddRabbitMqServices();
+                
 
 
             var app = builder.Build();
@@ -30,6 +31,7 @@ namespace CartService.API
                 app.UseSwaggerUI();
             }
             app.UseMiddleware<ExceptionMiddleware>();
+
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();

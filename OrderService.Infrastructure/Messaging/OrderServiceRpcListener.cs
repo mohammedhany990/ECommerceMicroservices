@@ -7,8 +7,6 @@ using RabbitMQ.Client.Events;
 using Shared.Messaging;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace OrderService.Infrastructure.Messaging
 {
@@ -27,7 +25,12 @@ namespace OrderService.Infrastructure.Messaging
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _channel = _connection.CreateChannel();
-            _channel.QueueDeclare(queue: "order.request", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            _channel.QueueDeclare(
+                queue: "order.request",
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
 
@@ -44,13 +47,20 @@ namespace OrderService.Infrastructure.Messaging
                 var replyProps = _channel.CreateBasicProperties();
                 replyProps.CorrelationId = ea.BasicProperties.CorrelationId;
 
-                _channel.BasicPublish(exchange: "", routingKey: ea.BasicProperties.ReplyTo, basicProperties: replyProps, body: responseBytes);
+                _channel.BasicPublish(
+                    exchange: "",
+                    routingKey: ea.BasicProperties.ReplyTo,
+                    basicProperties: replyProps,
+                    body: responseBytes);
 
                 _channel.BasicAck(ea.DeliveryTag, false);
 
             };
 
-            _channel.BasicConsume(queue: "order.request", autoAck: false, consumer: consumer);
+            _channel.BasicConsume(
+                queue: "order.request",
+                autoAck: false,
+                consumer: consumer);
 
             return Task.CompletedTask;
         }

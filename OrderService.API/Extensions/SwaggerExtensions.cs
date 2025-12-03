@@ -28,7 +28,7 @@ namespace OrderService.API.Extensions
 
                 opt.AddSecurityRequirement(securityRequirement);
 
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Order Service", Version = "v1.0" });
             });
 
             return services;

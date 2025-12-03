@@ -28,7 +28,7 @@ namespace ProductService.API.Extensions
 
                 opt.AddSecurityRequirement(securityRequirement);
 
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Category Service", Version = "v1.0" });
             });
 
             return services;

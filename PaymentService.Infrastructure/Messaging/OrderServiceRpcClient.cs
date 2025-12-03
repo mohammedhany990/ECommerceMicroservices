@@ -28,15 +28,22 @@ namespace PaymentService.Infrastructure.Messaging
             var correlationId = Guid.NewGuid().ToString();
 
             var props = channel.CreateBasicProperties();
+
             props.CorrelationId = correlationId;
             props.ReplyTo = replyQueue;
 
             var messageBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(orderId));
-            channel.BasicPublish(exchange: "", routingKey: "order.request", basicProperties: props, body: messageBytes);
+
+            channel.BasicPublish(
+                exchange: "",
+                routingKey: "order.request",
+                basicProperties: props,
+                body: messageBytes);
 
             var tcs = new TaskCompletionSource<OrderDto?>();
 
             var consumer = new EventingBasicConsumer(channel);
+
             consumer.Received += (model, ea) =>
             {
                 if (ea.BasicProperties.CorrelationId == correlationId)

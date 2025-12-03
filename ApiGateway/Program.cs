@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using System.Security.Claims;
-using System.Threading.RateLimiting;
 
 namespace ApiGateway
 {
@@ -48,7 +45,7 @@ namespace ApiGateway
 
             builder.Services.AddOcelot(builder.Configuration);
 
-           
+
 
 
             var app = builder.Build();

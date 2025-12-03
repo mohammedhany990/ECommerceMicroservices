@@ -1,10 +1,10 @@
-﻿using CartService.API.Models.Responses;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using NotificationService.API.Models.Responses;
 using System.Text;
 using System.Text.Json;
 
-namespace CartService.API.Extensions
+namespace NotificationService.API.Extensions
 {
     public static class JwtExtensions
     {

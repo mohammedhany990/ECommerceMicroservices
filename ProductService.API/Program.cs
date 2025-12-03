@@ -7,7 +7,7 @@ namespace ProductService.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +15,7 @@ namespace ProductService.API
             builder.Services.AddEndpointsApiExplorer();
 
 
-           
+
 
 
             builder.Services
@@ -24,6 +24,8 @@ namespace ProductService.API
                 .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
                 .AddJwtAuthentication(builder.Configuration)
                 .ConfigureApiBehavior();
+
+
 
             var app = builder.Build();
 
@@ -35,6 +37,7 @@ namespace ProductService.API
             }
 
             app.UseMiddleware<ExceptionMiddleware>();
+           
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();

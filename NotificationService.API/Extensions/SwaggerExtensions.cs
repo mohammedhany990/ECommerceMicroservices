@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace UserService.API.Extensions
+namespace NotificationService.API.Extensions
 {
     public static class SwaggerExtensions
     {
@@ -28,7 +28,7 @@ namespace UserService.API.Extensions
 
                 opt.AddSecurityRequirement(securityRequirement);
 
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "User Service", Version = "v1.0" });
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Notification Service", Version = "v1.0" });
             });
 
             return services;

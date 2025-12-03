@@ -28,7 +28,7 @@ namespace PaymentService.API.Extensions
 
                 opt.AddSecurityRequirement(securityRequirement);
 
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Product Service", Version = "v1.0" });
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Payment Service", Version = "v1.0" });
             });
 
             return services;
