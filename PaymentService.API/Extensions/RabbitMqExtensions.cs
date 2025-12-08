@@ -1,6 +1,5 @@
 ﻿using PaymentService.Infrastructure.Messaging;
 using Shared.Messaging;
-using PaymentService.Infrastructure.Messaging;
 
 namespace PaymentService.API.Extensions
 {

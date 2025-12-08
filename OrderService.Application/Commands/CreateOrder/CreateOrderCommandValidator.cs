@@ -1,9 +1,4 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrderService.Application.Commands.CreateOrder
 {
@@ -22,10 +17,10 @@ namespace OrderService.Application.Commands.CreateOrder
             RuleFor(x => x.ShippingMethodId)
                 .NotEmpty()
                 .WithMessage("ShippingId method is required.");
-                
 
-      
-            
+
+
+
         }
     }
 }

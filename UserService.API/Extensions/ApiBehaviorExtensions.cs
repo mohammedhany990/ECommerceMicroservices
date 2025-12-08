@@ -1,5 +1,5 @@
-﻿using UserService.API.Models.Responses;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using UserService.API.Models.Responses;
 
 namespace UserService.API.Extensions
 {

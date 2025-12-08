@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using UserService.Infrastructure.Data;
-using System;
 
 namespace UserService.API.Extensions
 {

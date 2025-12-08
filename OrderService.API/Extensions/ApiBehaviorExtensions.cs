@@ -1,5 +1,5 @@
-﻿using OrderService.API.Models.Responses;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using OrderService.API.Models.Responses;
 
 namespace OrderService.API.Extensions
 {

@@ -7,7 +7,6 @@ using ShippingService.Application.Commands.Shipments.CreateShipment;
 using ShippingService.Application.Commands.Shipments.UpdateShipment;
 using ShippingService.Application.DTOs;
 using ShippingService.Domain.Entities;
-using System;
 
 namespace ShippingService.Application.Mapping
 {

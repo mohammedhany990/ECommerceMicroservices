@@ -86,7 +86,7 @@ namespace OrderService.Application.Commands.UpdateOrder
                 }
                 else
                 {
-                    order.PaymentStatus = PaymentStatus.Pending;                
+                    order.PaymentStatus = PaymentStatus.Pending;
                 }
             }
 

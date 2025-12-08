@@ -1,10 +1,6 @@
 ﻿using MediatR;
 using PaymentService.Application.DTOs;
 using PaymentService.Domain.Interfaces;
-using Stripe.Climate;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PaymentService.Application.Queries.GetPaymentByOrderId
 {
@@ -19,12 +15,12 @@ namespace PaymentService.Application.Queries.GetPaymentByOrderId
 
         public async Task<PaymentResultDto> Handle(GetPaymentByOrderIdQuery request, CancellationToken cancellationToken)
         {
-            if(request.OrderId == Guid.Empty)
+            if (request.OrderId == Guid.Empty)
             {
                 throw new ArgumentException("OrderId cannot be empty.", nameof(request.OrderId));
             }
             var payment = await _paymentRepository.GetByOrderIdAsync(request.OrderId);
-            
+
             if (payment is null)
                 return null!;
 
@@ -38,7 +34,7 @@ namespace PaymentService.Application.Queries.GetPaymentByOrderId
                 ConfirmedAt = payment.ConfirmedAt,
                 FailureReason = payment.FailureReason,
                 PaymentIntentId = payment.PaymentIntentId
-                
+
             };
 
             return result;

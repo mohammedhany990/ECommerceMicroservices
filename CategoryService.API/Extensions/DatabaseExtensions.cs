@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using CategoryService.Infrastructure.Data;
+﻿using CategoryService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CategoryService.API.Extensions
 {

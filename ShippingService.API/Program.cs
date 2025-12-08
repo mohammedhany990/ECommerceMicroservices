@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ShippingService.API.Extensions;
 using ShippingService.API.Middlewares;
-
+using Shared.Consul;
 namespace ShippingService.API
 {
     public class Program
@@ -20,6 +20,7 @@ namespace ShippingService.API
                .AddJwtAuthentication(builder.Configuration)
                .ConfigureApiBehavior();
 
+            builder.Services.AddConsul(builder.Configuration);
 
             var app = builder.Build();
 

@@ -59,7 +59,7 @@ namespace NotificationService.Infrastructure.Services
 
                 return true;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine("Error sending email: " + ex.Message);
                 return false;

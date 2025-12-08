@@ -1,5 +1,6 @@
 using PaymentService.API.Extensions;
 using PaymentService.API.Middlewares;
+using Shared.Consul;
 namespace PaymentService.API
 {
     public class Program
@@ -21,7 +22,8 @@ namespace PaymentService.API
                 .AddJwtAuthentication(builder.Configuration)
                 .AddStripeConfiguration(builder.Configuration)
                 .AddRabbitMqServices();
-       
+            builder.Services.AddConsul(builder.Configuration);
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -36,6 +38,8 @@ namespace PaymentService.API
             app.UseAuthorization();
             app.UseRateLimiter();
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
+
             app.Run();
         }
     }

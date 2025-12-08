@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Shared.Messaging;
 using ShippingService.Application.Behaviors;
 using ShippingService.Application.Commands.Shipments.CreateShipment;

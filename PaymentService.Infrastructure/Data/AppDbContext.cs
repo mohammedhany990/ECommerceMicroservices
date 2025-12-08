@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PaymentService.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PaymentService.Infrastructure.Data
 {
@@ -14,7 +9,7 @@ namespace PaymentService.Infrastructure.Data
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
-            
+
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using CategoryService.API.Models.Responses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using CategoryService.API.Models.Responses;
 using System.Text;
 using System.Text.Json;
 

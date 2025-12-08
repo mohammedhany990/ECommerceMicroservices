@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OrderService.API.Extensions;
 using OrderService.API.Middlewares;
-
+using Shared.Consul;
 namespace OrderService.API
 {
     public class Program
@@ -27,6 +27,9 @@ namespace OrderService.API
                .AddCustomRateLimiting()
                .AddRabbitMqServices();
 
+            builder.Services.AddConsul(builder.Configuration);
+
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -44,6 +47,7 @@ namespace OrderService.API
 
 
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
 
             app.Run();
         }

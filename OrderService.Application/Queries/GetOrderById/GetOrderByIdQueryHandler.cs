@@ -4,11 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrderService.Application.Queries.GetOrderById
 {
@@ -29,7 +24,7 @@ namespace OrderService.Application.Queries.GetOrderById
                 throw new ArgumentException("OrderId cannot be empty", nameof(request.OrderId));
 
 
-            var order =await _repository.FirstOrDefaultAsync(x=>x.Id == request.OrderId, include: x=>x.Include(i=>i.Items));
+            var order = await _repository.FirstOrDefaultAsync(x => x.Id == request.OrderId, include: x => x.Include(i => i.Items));
             if (order == null)
                 return null;
 

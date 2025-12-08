@@ -1,5 +1,5 @@
-﻿using PaymentService.API.Models.Responses;
-using FluentValidation;
+﻿using FluentValidation;
+using PaymentService.API.Models.Responses;
 using System.Net;
 using System.Text.Json;
 

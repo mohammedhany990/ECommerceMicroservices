@@ -4,10 +4,6 @@ using CartService.Domain.Entities;
 using CartService.Domain.Interfaces;
 using CartService.Infrastructure.Messaging;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CartService.Application.Commands.AddItemToCart
 {

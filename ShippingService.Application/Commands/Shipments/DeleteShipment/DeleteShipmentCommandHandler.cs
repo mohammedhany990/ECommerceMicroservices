@@ -1,11 +1,6 @@
 ﻿using MediatR;
 using ShippingService.Domain.Entities;
 using ShippingService.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShippingService.Application.Commands.Shipments.DeleteShipment
 {
@@ -19,7 +14,7 @@ namespace ShippingService.Application.Commands.Shipments.DeleteShipment
         }
         public async Task<bool> Handle(DeleteShipmentCommand request, CancellationToken cancellationToken)
         {
-            if(request.Id == Guid.Empty)
+            if (request.Id == Guid.Empty)
             {
                 throw new ArgumentException("Shipment Id cannot be empty.", nameof(request.Id));
             }

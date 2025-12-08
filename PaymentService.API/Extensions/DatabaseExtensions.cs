@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using PaymentService.Infrastructure.Data;
-using System;
 
 namespace PaymentService.API.Extensions
 {

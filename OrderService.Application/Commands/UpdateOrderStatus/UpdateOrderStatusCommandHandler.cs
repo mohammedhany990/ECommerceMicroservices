@@ -40,14 +40,14 @@ namespace OrderService.Application.Commands.UpdateOrderStatus
             order.Status = request.NewStatus;
             order.UpdatedAt = DateTime.UtcNow;
 
-            
-            
+
+
             await _repository.UpdateAsync(order);
 
             await _repository.SaveChangesAsync();
 
 
-            
+
             if (order.Status == OrderStatus.Cancelled)
             {
 
@@ -55,7 +55,7 @@ namespace OrderService.Application.Commands.UpdateOrderStatus
                 var notificationEvent = new CreateNotificationEvent
                 {
                     UserId = order.UserId,
-                    To= userEmail,
+                    To = userEmail,
                     Subject = "Order Cancelled",
                     Body = $@"
                                 Hello,

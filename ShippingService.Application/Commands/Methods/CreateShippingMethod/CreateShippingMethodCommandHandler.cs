@@ -1,13 +1,8 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using ShippingService.Application.DTOs;
-using ShippingService.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ShippingService.Domain.Entities;
-using AutoMapper;
+using ShippingService.Domain.Interfaces;
 
 namespace ShippingService.Application.Commands.Methods.CreateShippingMethod
 {

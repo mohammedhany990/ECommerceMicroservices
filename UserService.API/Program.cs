@@ -2,7 +2,7 @@
 using OrderService.API.Extensions;
 using UserService.API.Extensions;
 using UserService.API.Middlewares;
-
+using Shared.Consul;
 namespace UserService.API
 {
     public class Program
@@ -23,7 +23,8 @@ namespace UserService.API
                .ConfigureApiBehavior()
                .AddCustomRateLimiting()
                .AddRabbitMqServices();
-               
+
+            builder.Services.AddConsul(builder.Configuration);
 
 
             var app = builder.Build();
@@ -37,11 +38,12 @@ namespace UserService.API
             }
 
             app.UseHttpsRedirection();
-            app.UseAuthentication();
             app.UseRateLimiter();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
 
             app.Run();
 

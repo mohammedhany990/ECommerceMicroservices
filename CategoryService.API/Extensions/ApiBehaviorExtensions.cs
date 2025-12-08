@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CategoryService.API.Models.Responses;
+﻿using CategoryService.API.Models.Responses;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CategoryService.API.Extensions
 {

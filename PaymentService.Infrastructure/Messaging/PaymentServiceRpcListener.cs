@@ -6,12 +6,8 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.DTOs;
 using Shared.Messaging;
-using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PaymentService.Infrastructure.Messaging
 {
@@ -89,7 +85,7 @@ namespace PaymentService.Infrastructure.Messaging
                     if (payment == null)
                     {
                         response = ApiResponse<PaymentResultDto>.FailResponse(
-                            new List<string> { "Payment not found" },statusCode: 404
+                            new List<string> { "Payment not found" }, statusCode: 404
                         );
                     }
                     else
@@ -120,7 +116,7 @@ namespace PaymentService.Infrastructure.Messaging
             }
 
             var responseBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
-                
+
             _channel.BasicPublish(
                 exchange: "",
                 routingKey: ea.BasicProperties.ReplyTo,

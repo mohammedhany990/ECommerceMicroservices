@@ -1,5 +1,5 @@
-﻿using PaymentService.API.Models.Responses;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using PaymentService.API.Models.Responses;
 
 namespace PaymentService.API.Extensions
 {

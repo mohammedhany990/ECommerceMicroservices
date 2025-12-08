@@ -2,11 +2,9 @@
 using CartService.Application.Commands.AddItemToCart;
 using CartService.Application.Mapping;
 using CartService.Domain.Interfaces;
-using CartService.InfraStructure.Messaging;
 using CartService.InfraStructure.Repositories;
 using FluentValidation;
 using MediatR;
-using Shared.Messaging;
 
 
 namespace CartService.API.Extensions
@@ -15,7 +13,7 @@ namespace CartService.API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-          
+
 
             services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile).Assembly);
 

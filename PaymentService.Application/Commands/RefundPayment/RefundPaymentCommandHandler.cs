@@ -5,14 +5,8 @@ using PaymentService.Application.DTOs;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Messaging;
-using PaymentService.Infrastructure.Services;
 using Shared.Messaging;
 using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PaymentService.Application.Commands.RefundPayment
 {

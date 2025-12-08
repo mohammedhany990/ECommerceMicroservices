@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using Shared.Messaging;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace PaymentService.Application.Events
 {

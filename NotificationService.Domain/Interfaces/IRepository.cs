@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace NotificationService.Domain.Interfaces
 {
@@ -11,7 +6,7 @@ namespace NotificationService.Domain.Interfaces
     {
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetUnsentAsync();
-        
+
         Task<T?> GetByIdAsync(Guid id);
         Task<IEnumerable<T>> GetAllAsync();
 

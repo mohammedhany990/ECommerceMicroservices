@@ -1,7 +1,6 @@
 {
   "Routes": [
-
-    // ===================== Product Service =====================
+    // ===================== Product Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -13,8 +12,12 @@
       ],
       "UpstreamPathTemplate": "/productswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "product"
+      "SwaggerKey": "product",
+      "UseServiceDiscovery": false,
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Product API =====================
     {
       "DownstreamPathTemplate": "/api/products/{everything}",
       "DownstreamScheme": "http",
@@ -27,6 +30,8 @@
       "UpstreamPathTemplate": "/products/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "product",
+      "UseServiceDiscovery": false,
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "1m",
@@ -34,6 +39,8 @@
         "Limit": 120
       }
     },
+
+    // ===================== Product Images =====================
     {
       "DownstreamPathTemplate": "/images/products/{everything}",
       "DownstreamScheme": "http",
@@ -43,9 +50,11 @@
           "Port": 5144
         }
       ],
-      "UpstreamPathTemplate": "/images/Products/{everything}",
+      "UpstreamPathTemplate": "/images/products/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
       "SwaggerKey": "product",
+      "UseServiceDiscovery": false,
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "1m",
@@ -54,7 +63,7 @@
       }
     },
 
-    // ===================== Category Service =====================
+    // ===================== Category Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -66,8 +75,11 @@
       ],
       "UpstreamPathTemplate": "/categoryswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "category"
+      "SwaggerKey": "category",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Category API =====================
     {
       "DownstreamPathTemplate": "/api/categories/{everything}",
       "DownstreamScheme": "http",
@@ -80,6 +92,7 @@
       "UpstreamPathTemplate": "/categories/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "category",
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "1m",
@@ -88,7 +101,7 @@
       }
     },
 
-    // ===================== User Service =====================
+    // ===================== User Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -100,8 +113,11 @@
       ],
       "UpstreamPathTemplate": "/userswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "user"
+      "SwaggerKey": "user",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== User API =====================
     {
       "DownstreamPathTemplate": "/api/auth/{everything}",
       "DownstreamScheme": "http",
@@ -114,6 +130,7 @@
       "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "user",
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "1m",
@@ -122,7 +139,7 @@
       }
     },
 
-    // ===================== Cart Service =====================
+    // ===================== Cart Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -134,8 +151,11 @@
       ],
       "UpstreamPathTemplate": "/cartswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "cart"
+      "SwaggerKey": "cart",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Cart API =====================
     {
       "DownstreamPathTemplate": "/api/carts/{everything}",
       "DownstreamScheme": "http",
@@ -148,6 +168,7 @@
       "UpstreamPathTemplate": "/carts/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "cart",
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "30s",
@@ -156,7 +177,7 @@
       }
     },
 
-    // ===================== Shipping Service =====================
+    // ===================== Shipping Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -168,8 +189,11 @@
       ],
       "UpstreamPathTemplate": "/shippingswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "shipping"
+      "SwaggerKey": "shipping",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Shipping API =====================
     {
       "DownstreamPathTemplate": "/api/shipments/{everything}",
       "DownstreamScheme": "http",
@@ -181,7 +205,8 @@
       ],
       "UpstreamPathTemplate": "/shipments/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "shipping"
+      "SwaggerKey": "shipping",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
     {
       "DownstreamPathTemplate": "/api/shippingaddresses/{everything}",
@@ -194,7 +219,8 @@
       ],
       "UpstreamPathTemplate": "/shippingaddresses/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "shipping"
+      "SwaggerKey": "shipping",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
     {
       "DownstreamPathTemplate": "/api/shippingmethods/{everything}",
@@ -207,10 +233,11 @@
       ],
       "UpstreamPathTemplate": "/shippingmethods/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "SwaggerKey": "shipping"
+      "SwaggerKey": "shipping",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
 
-    // ===================== Order Service =====================
+    // ===================== Order Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -222,8 +249,11 @@
       ],
       "UpstreamPathTemplate": "/orderswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "order"
+      "SwaggerKey": "order",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Order API =====================
     {
       "DownstreamPathTemplate": "/api/orders/{everything}",
       "DownstreamScheme": "http",
@@ -236,6 +266,7 @@
       "UpstreamPathTemplate": "/orders/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "order",
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "1m",
@@ -244,7 +275,7 @@
       }
     },
 
-    // ===================== Payment Service =====================
+    // ===================== Payment Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -256,8 +287,11 @@
       ],
       "UpstreamPathTemplate": "/paymentswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "payment"
+      "SwaggerKey": "payment",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Payment API =====================
     {
       "DownstreamPathTemplate": "/api/payments/{everything}",
       "DownstreamScheme": "http",
@@ -270,6 +304,7 @@
       "UpstreamPathTemplate": "/payments/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "payment",
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "30s",
@@ -277,7 +312,8 @@
         "Limit": 20
       }
     },
-    // ===================== Notifications Service =====================
+
+    // ===================== Notifications Swagger =====================
     {
       "DownstreamPathTemplate": "/swagger/v1/swagger.json",
       "DownstreamScheme": "http",
@@ -289,8 +325,11 @@
       ],
       "UpstreamPathTemplate": "/notificationswagger/v1/swagger.json",
       "UpstreamHttpMethod": [ "GET" ],
-      "SwaggerKey": "notification"
+      "SwaggerKey": "notification",
+      "LoadBalancerOptions": { "Type": "RoundRobin" }
     },
+
+    // ===================== Notifications API =====================
     {
       "DownstreamPathTemplate": "/api/notifications/{everything}",
       "DownstreamScheme": "http",
@@ -303,6 +342,7 @@
       "UpstreamPathTemplate": "/notifications/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "SwaggerKey": "notification",
+      "LoadBalancerOptions": { "Type": "RoundRobin" },
       "RateLimitOptions": {
         "EnableRateLimiting": true,
         "Period": "30s",
@@ -314,6 +354,13 @@
 
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5240",
+    "ServiceDiscoveryProvider": {
+      "Type": "Consul",
+      "Host": "localhost",
+      "Port": 8500,
+      "PollingInterval": 1000,
+      "Scheme": "http"
+    },
     "RateLimitOptions": {
       "QuotaExceededMessage": "Too many requests. Slow down!",
       "HttpStatusCode": 429

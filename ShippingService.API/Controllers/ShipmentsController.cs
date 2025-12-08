@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShippingService.API.Models.Responses;
 using ShippingService.Application.Commands.Shipments.CreateShipment;

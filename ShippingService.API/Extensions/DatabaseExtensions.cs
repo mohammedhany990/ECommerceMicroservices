@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using ShippingService.Infrastructure.Data;
-using System;
 
 namespace ShippingService.API.Extensions
 {

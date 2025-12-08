@@ -1,7 +1,4 @@
-﻿
-using Microsoft.Extensions.Configuration;
-using StackExchange.Redis;
-using System;
+﻿using StackExchange.Redis;
 
 namespace CartService.API.Extensions
 {
@@ -9,7 +6,7 @@ namespace CartService.API.Extensions
     {
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-           
+
             services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
             {
                 var redisConnection = configuration.GetConnectionString("Redis");

@@ -1,5 +1,5 @@
-﻿using ShippingService.API.Models.Responses;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using ShippingService.API.Models.Responses;
 
 namespace ShippingService.API.Extensions
 {

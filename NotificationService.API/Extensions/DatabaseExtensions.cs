@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using NotificationService.Infrastructure.Data;
-using System;
 
 namespace NotificationService.API.Extensions
 {

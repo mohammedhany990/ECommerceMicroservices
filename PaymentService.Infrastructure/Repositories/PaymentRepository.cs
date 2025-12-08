@@ -1,12 +1,7 @@
-﻿using PaymentService.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace PaymentService.Infrastructure.Repositories
 {

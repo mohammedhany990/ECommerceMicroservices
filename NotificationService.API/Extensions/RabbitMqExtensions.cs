@@ -10,7 +10,7 @@ namespace NotificationService.API.Extensions
 
             services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
             services.AddSingleton(sp => sp.GetRequiredService<IRabbitMqConnection>().CreateChannel());
- 
+
 
             services.AddHostedService<RabbitMqListener>();
             services.AddHostedService<NotificationSenderWorker>();

@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using OrderService.API.Models.Responses;
@@ -51,7 +50,7 @@ namespace OrderService.API.Controllers
         public async Task<IActionResult> GetOrdersForCurrentUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             var orders = await _mediator.Send(new GetOrderByUserIdQuery(Guid.Parse(userId)));
 
             if (orders == null || !orders.Any())

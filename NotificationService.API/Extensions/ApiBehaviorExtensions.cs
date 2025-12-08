@@ -1,5 +1,5 @@
-﻿using NotificationService.API.Models.Responses;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using NotificationService.API.Models.Responses;
 
 namespace NotificationService.API.Extensions
 {

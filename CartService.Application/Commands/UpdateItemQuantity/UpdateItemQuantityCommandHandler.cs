@@ -1,13 +1,7 @@
 ﻿using AutoMapper;
-using CartService.Application.DTOs;
 using CartService.Domain.Interfaces;
 using CartService.Infrastructure.Messaging;
 using MediatR;
-using Shared.DTOs;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CartDto = CartService.Application.DTOs.CartDto;
 
 namespace CartService.Application.Commands.UpdateItemQuantity

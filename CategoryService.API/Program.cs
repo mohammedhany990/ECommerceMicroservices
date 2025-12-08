@@ -2,7 +2,7 @@ using CategoryService.API.Extensions;
 using CategoryService.API.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using ProductService.API.Extensions;
-
+using Shared.Consul;
 namespace CategoryService.API
 {
     public class Program
@@ -22,6 +22,7 @@ namespace CategoryService.API
                   .AddJwtAuthentication(builder.Configuration)
                   .ConfigureApiBehavior();
 
+            builder.Services.AddConsul(builder.Configuration);
 
 
             var app = builder.Build();
@@ -39,7 +40,7 @@ namespace CategoryService.API
             app.UseAuthorization();
 
             app.MapControllers();
-
+            app.MapGet("/health", () => "Healthy");
             app.Run();
         }
     }

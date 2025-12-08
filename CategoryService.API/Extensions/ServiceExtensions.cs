@@ -4,7 +4,6 @@ using CategoryService.Application.Queries.GetProducts;
 using CategoryService.Domain.Interfaces;
 using CategoryService.Infrastructure.Messaging;
 using CategoryService.Infrastructure.Repository;
-using FluentValidation;
 using MediatR;
 
 using Shared.Messaging;

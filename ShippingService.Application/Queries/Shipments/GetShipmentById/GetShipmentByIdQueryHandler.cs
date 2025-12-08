@@ -3,11 +3,6 @@ using MediatR;
 using ShippingService.Application.DTOs;
 using ShippingService.Domain.Entities;
 using ShippingService.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShippingService.Application.Queries.Shipments.GetShipmentById
 {
@@ -23,11 +18,11 @@ namespace ShippingService.Application.Queries.Shipments.GetShipmentById
         }
         public async Task<ShipmentDto> Handle(GetShipmentByIdQuery request, CancellationToken cancellationToken)
         {
-            if(request.Id == Guid.Empty)
+            if (request.Id == Guid.Empty)
             {
                 throw new ArgumentException("Shipment ID cannot be empty.", nameof(request.Id));
             }
-            var shipment = await _repository.GetByIdAsync(request.Id);  
+            var shipment = await _repository.GetByIdAsync(request.Id);
 
             if (shipment == null)
             {

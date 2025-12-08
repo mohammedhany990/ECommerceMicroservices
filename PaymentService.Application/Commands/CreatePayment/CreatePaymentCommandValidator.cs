@@ -1,9 +1,4 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PaymentService.Application.Commands.CreatePayment
 {
@@ -17,9 +12,9 @@ namespace PaymentService.Application.Commands.CreatePayment
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage("UserId is required.");
 
-            
 
-            
+
+
         }
     }
 }

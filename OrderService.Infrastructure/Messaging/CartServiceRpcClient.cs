@@ -1,8 +1,5 @@
 ﻿using Shared.DTOs;
 using Shared.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace OrderService.Infrastructure.Messaging
 {

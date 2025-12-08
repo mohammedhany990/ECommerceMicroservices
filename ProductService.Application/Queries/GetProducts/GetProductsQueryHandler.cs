@@ -4,7 +4,6 @@ using ProductService.Application.DTOs;
 using ProductService.Domain.Entities;
 using ProductService.Domain.Interfaces;
 using ProductService.Infrastructure.Messaging;
-using ProductService.Infrastructure.Services;
 
 namespace ProductService.Application.Queries.GetProducts
 {

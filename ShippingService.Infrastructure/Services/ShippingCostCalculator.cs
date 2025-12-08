@@ -1,11 +1,6 @@
 ﻿using Shared.DTOs;
 using ShippingService.Domain.Entities;
 using ShippingService.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShippingService.Infrastructure.Services
 {

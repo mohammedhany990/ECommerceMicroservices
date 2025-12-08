@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderService.Domain.Interfaces;
 using OrderService.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrderService.Infrastructure.Repositories
 {

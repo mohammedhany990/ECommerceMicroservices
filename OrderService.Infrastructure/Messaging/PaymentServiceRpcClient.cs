@@ -1,7 +1,5 @@
 ﻿using Shared.DTOs;
 using Shared.Messaging;
-using System;
-using System.Threading.Tasks;
 
 namespace OrderService.Infrastructure.Messaging
 {
@@ -18,7 +16,7 @@ namespace OrderService.Infrastructure.Messaging
         {
             var task = _rpc.Call<PaymentResultDto>(
                 routingKey: "payment.getByOrder",
-                message: new OrderIdRequest{ OrderId = orderId }
+                message: new OrderIdRequest { OrderId = orderId }
             );
 
             if (await Task.WhenAny(task, Task.Delay(timeoutMs)) == task)

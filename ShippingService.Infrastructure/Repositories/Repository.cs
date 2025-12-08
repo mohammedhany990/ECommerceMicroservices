@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShippingService.Domain.Interfaces;
 using ShippingService.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShippingService.Infrastructure.Repositories
 {
@@ -29,7 +24,7 @@ namespace ShippingService.Infrastructure.Repositories
         public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
 
 
-       
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var entity = await _dbSet.FindAsync(id);

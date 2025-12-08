@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OrderService.Application.DTOs
+﻿namespace OrderService.Application.DTOs
 {
     public class OrderDto
     {
@@ -23,7 +17,7 @@ namespace OrderService.Application.DTOs
         public string? ShippingMethod { get; set; } = string.Empty;
         public DateTime? ExpectedDeliveryDate { get; set; }
 
-        public string PaymentStatus { get; set; } = "Pending"; 
+        public string PaymentStatus { get; set; } = "Pending";
         public Guid? PaymentId { get; set; }
 
         public List<OrderItemDto> Items { get; set; } = new();

@@ -11,7 +11,7 @@ namespace OrderService.API.Extensions
     public static class ServiceExtensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-        {            
+        {
             services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile).Assembly);
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

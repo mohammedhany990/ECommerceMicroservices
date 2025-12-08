@@ -6,11 +6,8 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.DTOs;
 using Shared.Messaging;
-using System;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProductService.Infrastructure.Messaging
 {
@@ -88,7 +85,7 @@ namespace ProductService.Infrastructure.Messaging
                 productDto = null;
             }
 
-            var response = productDto is not null 
+            var response = productDto is not null
                 ? ApiResponse<ProductDto>.SuccessResponse(productDto, "OK", 200)
                 : ApiResponse<ProductDto>.FailResponse(null!, "Product not found", 404);
 

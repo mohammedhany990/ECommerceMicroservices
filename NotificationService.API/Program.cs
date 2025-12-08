@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationService.API.Extensions;
 using NotificationService.API.Middlewares;
-
+using Shared.Consul;
 namespace NotificationService.API
 {
     public class Program
@@ -22,7 +22,9 @@ namespace NotificationService.API
                .ConfigureApiBehavior()
                .AddRabbitMqServices();
 
-            
+            builder.Services.AddConsul(builder.Configuration);
+
+
 
             var app = builder.Build();
 
@@ -39,6 +41,7 @@ namespace NotificationService.API
 
 
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
 
             app.Run();
         }

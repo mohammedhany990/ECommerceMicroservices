@@ -3,8 +3,6 @@ using Microsoft.Extensions.Logging;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
 using Stripe;
-using System;
-using System.Threading.Tasks;
 
 namespace PaymentService.Infrastructure.Services
 {

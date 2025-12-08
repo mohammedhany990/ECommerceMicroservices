@@ -1,6 +1,9 @@
 ﻿using Microsoft.OpenApi.Models;
+using Ocelot.Cache.CacheManager;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.Provider.Consul;
+using Ocelot.Provider.Polly;
 
 namespace ApiGateway
 {
@@ -43,8 +46,14 @@ namespace ApiGateway
             });
 
 
-            builder.Services.AddOcelot(builder.Configuration);
-
+            builder.Services
+                .AddOcelot(builder.Configuration)
+                .AddConsul()
+                .AddCacheManager(x =>
+                {
+                    x.WithDictionaryHandle();
+                })
+                .AddPolly();
 
 
 
@@ -60,6 +69,7 @@ namespace ApiGateway
             });
 
             await app.UseOcelot();
+            
 
             app.Run();
         }

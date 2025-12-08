@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using OrderService.Infrastructure.Data;
-using System;
 
 namespace OrderService.API.Extensions
 {

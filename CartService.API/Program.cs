@@ -1,11 +1,11 @@
 using CartService.API.Extensions;
 using CartService.API.Middlewares;
-
+using Shared.Consul;
 namespace CartService.API
 {
     public class Program
     {
-        public  static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,8 @@ namespace CartService.API
                 .AddJwtAuthentication(builder.Configuration)
                 .ConfigureApiBehavior()
                 .AddRabbitMqServices();
-                
+
+            builder.Services.AddConsul(builder.Configuration);
 
 
             var app = builder.Build();
@@ -33,8 +34,10 @@ namespace CartService.API
             app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
 
             app.Run();
         }

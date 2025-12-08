@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Consul;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ProductService.API.Extensions;
 using ProductService.API.Middlewares;
-using ProductService.Infrastructure.Services;
-
+using System.Text;
+using System.Threading;
+using Shared.Consul;
 namespace ProductService.API
 {
     public class Program
@@ -15,15 +18,16 @@ namespace ProductService.API
             builder.Services.AddEndpointsApiExplorer();
 
 
-
-
-
             builder.Services
                 .AddSwaggerWithJwt()
                 .AddApplicationServices()
                 .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
                 .AddJwtAuthentication(builder.Configuration)
                 .ConfigureApiBehavior();
+
+            builder.Services.AddConsul(builder.Configuration);
+
+
 
 
 
@@ -37,12 +41,15 @@ namespace ProductService.API
             }
 
             app.UseMiddleware<ExceptionMiddleware>();
-           
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
+
+            //app.RegisterConsul(serviceSettings);
+
             app.Run();
         }
     }

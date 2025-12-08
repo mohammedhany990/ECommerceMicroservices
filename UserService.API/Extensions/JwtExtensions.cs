@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using UserService.API.Models.Responses;
 using System.Text;
 using System.Text.Json;
+using UserService.API.Models.Responses;
 
 namespace UserService.API.Extensions
 {
