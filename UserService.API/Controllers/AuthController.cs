@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.ComponentModel.DataAnnotations;
 using UserService.API.Models.Responses;
 using UserService.Application.Commands.LoginUser;
 using UserService.Application.Commands.RefreshToken;
 using UserService.Application.Commands.RegisterUser;
+using UserService.Application.Commands.RevokeRefreshToken;
 using UserService.Application.DTOs;
 using UserService.Application.Queries.GetUserEmailById;
 using UserService.Application.Queries.GetUsers;
@@ -65,34 +67,35 @@ namespace UserService.API.Controllers
         [EnableRateLimiting("per-user")]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ApiResponse<string>>> GetUserEmail(GetUserEmailByIdQuery request)
+        public async Task<ActionResult<ApiResponse<string>>> GetUserEmail([FromRoute] Guid userId)
         {
-            var result = await _mediator.Send(request);
+            var result = await _mediator.Send(new GetUserEmailByIdQuery(userId));
             return Ok(ApiResponse<string>.SuccessResponse(result, "User email retrieved successfully", 200));
         }
 
+        [HttpPost("revoke")]
+        [EnableRateLimiting("per-user")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Revoke([FromBody] string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return BadRequest(ApiResponse<string>.FailResponse(new List<string> { "Refresh token is required." },
+                    "Invalid request",
+                    400
+                ));
+            }
 
-
-
-
-
-
-
-
-        //[HttpPost("revoke")]
-        //public async Task<IActionResult> Revoke([FromBody] string email)
-        //{
-        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        //    if (user == null)
-        //        return NotFound();
-
-        //    user.RefreshToken = null;
-        //    await _context.SaveChangesAsync();
-        //    return Ok("Token revoked.");
-        //}
+            var result = await _mediator.Send(new RevokeRefreshTokenCommand(refreshToken));
+            if (!result)
+            {
+                return BadRequest(ApiResponse<string>.FailResponse(
+                    new List<string> { "Failed to revoke the refresh token." }, "Operation failed", 400));
+            }
+            return Ok(ApiResponse<string>.SuccessResponse("Refresh token revoked successfully", "Operation successful", 200));
+        }
 
     }
-
-
 }
 

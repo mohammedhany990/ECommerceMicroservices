@@ -7,7 +7,7 @@ namespace UserService.Domain.Interfaces
         Task<string> GetUserEmailAsync(Guid userId);
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<T?> GetByIdAsync(Guid id);
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate =null);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(Guid id);

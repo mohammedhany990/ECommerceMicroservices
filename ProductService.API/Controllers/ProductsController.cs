@@ -23,7 +23,6 @@ namespace ProductService.API.Controllers
             _mediator = mediator;
         }
 
-
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<List<ProductDto>>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResponse<List<ProductDto>>>> GetProducts()
@@ -31,9 +30,6 @@ namespace ProductService.API.Controllers
             var result = await _mediator.Send(new GetProductsQuery());
             return Ok(ApiResponse<List<ProductDto>>.SuccessResponse(result, "Products retrieved successfully"));
         }
-
-
-
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
@@ -48,10 +44,10 @@ namespace ProductService.API.Controllers
             return Ok(ApiResponse<ProductDto>.SuccessResponse(result, "Product retrieved successfully"));
         }
 
-
-        [Authorize(Roles = "Admin")]
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ApiResponse<ProductDto>>> CreateProduct([FromForm] CreateProductRequest request)
         {
             byte[]? imageBytes = null;
@@ -82,10 +78,10 @@ namespace ProductService.API.Controllers
             return StatusCode(201, ApiResponse<ProductDto>.SuccessResponse(result, "Product created successfully", 201));
         }
 
-
         [HttpPut("{id:guid}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponse<ProductDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ApiResponse<ProductDto>>> UpdateProduct(Guid id, [FromForm] UpdateProductRequest request)
         {
             byte[]? imageBytes = null;
@@ -117,11 +113,11 @@ namespace ProductService.API.Controllers
             return Ok(ApiResponse<ProductDto>.SuccessResponse(result, "Product updated successfully"));
         }
 
-
         [HttpDelete("{id:guid}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ApiResponse<bool>>> DeleteProduct(Guid id)
         {
             var result = await _mediator.Send(new DeleteProductCommand { ProductId = id });
@@ -131,11 +127,5 @@ namespace ProductService.API.Controllers
 
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Product deleted successfully"));
         }
-
-
-
-
-
     }
-
 }

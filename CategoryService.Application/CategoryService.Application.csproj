@@ -15,8 +15,5 @@
 		<ProjectReference Include="..\CategoryService.Domain\CategoryService.Domain.csproj" />
 		<ProjectReference Include="..\CategoryService.Infrastructure\CategoryService.Infrastructure.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Commands\" />
-	</ItemGroup>
 
 </Project>

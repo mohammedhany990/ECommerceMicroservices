@@ -19,10 +19,10 @@ namespace ProductService.API.Extensions
             services.AddHostedService<ProductServiceRpcListener>();
             services.AddSingleton<CategoryServiceRpcClient>();
             services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
+
             services.AddSingleton(sp => sp.GetRequiredService<IRabbitMqConnection>().CreateChannel());
             services.AddSingleton(typeof(IRabbitMqPublisher<>), typeof(RabbitMqPublisher<>));
 
-            services.AddSingleton(sp => sp.GetRequiredService<IRabbitMqConnection>().CreateChannel());
 
             services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>(), typeof(MappingProfile).Assembly);
 

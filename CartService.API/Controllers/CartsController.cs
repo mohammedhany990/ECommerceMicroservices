@@ -26,73 +26,61 @@ namespace CartService.API.Controllers
         }
 
         [HttpPost("add")]
+        [ProducesResponseType(typeof(ApiResponse<CartDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AddItem([FromBody] AddItemToCartDto dto)
         {
             var userId = GetUserId();
-            if (userId is null)
-                return Unauthorized(ApiResponse<object>.FailResponse(
-                    new List<string> { "Invalid or missing user ID in token." },
-                    "Unauthorized",
-                    StatusCodes.Status401Unauthorized
-                ));
 
-            var result = await _mediator.Send(new AddItemToCartCommand(userId.Value, dto.ProductId, dto.Quantity));
+            var result = await _mediator.Send(new AddItemToCartCommand(userId, dto.ProductId, dto.Quantity));
             return Ok(ApiResponse<CartDto>.SuccessResponse(result, "Item added successfully"));
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<CartDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetCart(Guid? shippingAddressId, Guid? shippingMethodId)
         {
             var userId = GetUserId();
-            if (userId == Guid.Empty)
-                return Unauthorized(ApiResponse<object>.FailResponse(
-                    new List<string> { "Invalid or missing user ID in token." },
-                    "Unauthorized",
-                    StatusCodes.Status401Unauthorized
-                ));
 
-            var result = await _mediator.Send(new GetCartQuery(userId.Value, shippingAddressId, shippingMethodId));
+            var result = await _mediator.Send(new GetCartQuery(userId, shippingAddressId, shippingMethodId));
             return Ok(ApiResponse<CartDto>.SuccessResponse(result, "Cart retrieved successfully"));
         }
 
         [HttpDelete("{productId}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RemoveItem(Guid productId)
         {
             var userId = GetUserId();
-            if (userId is null)
-                return Unauthorized(ApiResponse<object>.FailResponse(
-                    new List<string> { "Invalid or missing user ID in token." },
-                    "Unauthorized",
-                    StatusCodes.Status401Unauthorized
-                ));
 
-            var result = await _mediator.Send(new RemoveItemCommand(userId.Value, productId));
+            var result = await _mediator.Send(new RemoveItemCommand(userId, productId));
             if (!result)
                 return NotFound(ApiResponse<object>.FailResponse(
                     new List<string> { "Item not found in cart" },
                     "Remove item failed",
-                    StatusCodes.Status404NotFound));
+                    StatusCodes.Status404NotFound
+                ));
 
             return Ok(ApiResponse<object>.SuccessResponse(null!, "Item removed successfully"));
         }
 
         [HttpPut("{productId}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateItemQuantity(Guid productId, [FromQuery] int quantity)
         {
             var userId = GetUserId();
-            if (userId is null)
-                return Unauthorized(ApiResponse<object>.FailResponse(
-                    new List<string> { "Invalid or missing user ID in token." },
-                    "Unauthorized",
-                    StatusCodes.Status401Unauthorized
-                ));
 
-            var result = await _mediator.Send(new UpdateItemQuantityCommand(userId.Value, productId, quantity));
-            if (result is null)
+            var result = await _mediator.Send(new UpdateItemQuantityCommand(userId, productId, quantity));
+            if (result == null)
                 return NotFound(ApiResponse<object>.FailResponse(
                     new List<string> { "Item not found in cart" },
                     "Update failed",
-                    StatusCodes.Status404NotFound));
+                    StatusCodes.Status404NotFound
+                ));
 
             return Ok(ApiResponse<object>.SuccessResponse(result, "Item quantity updated successfully"));
         }
@@ -103,17 +91,10 @@ namespace CartService.API.Controllers
         public async Task<IActionResult> ClearCart()
         {
             var userId = GetUserId();
-            if (userId is null)
-                return Unauthorized(ApiResponse<object>.FailResponse(
-                    new List<string> { "Invalid or missing user ID in token." },
-                    "Unauthorized",
-                    StatusCodes.Status401Unauthorized
-                ));
 
-            await _mediator.Send(new ClearCartCommand(userId.Value));
+            await _mediator.Send(new ClearCartCommand(userId));
             return Ok(ApiResponse<object>.SuccessResponse(null!, "Cart cleared successfully"));
         }
-
 
         [HttpPost("restore")]
         [ProducesResponseType(typeof(ApiResponse<CartDto>), StatusCodes.Status200OK)]
@@ -121,26 +102,19 @@ namespace CartService.API.Controllers
         public async Task<IActionResult> RestoreItemsToCart([FromBody] List<CartItemDto> items)
         {
             var userId = GetUserId();
-            if (userId is null)
-                return Unauthorized(ApiResponse<object>.FailResponse(
-                    new List<string> { "Invalid or missing user ID in token." },
-                    "Unauthorized",
-                    StatusCodes.Status401Unauthorized
-                ));
 
-            var cart = await _mediator.Send(new RestoreItemsToCartCommand(userId.Value, items));
-
+            var cart = await _mediator.Send(new RestoreItemsToCartCommand(userId, items));
             return Ok(ApiResponse<CartDto>.SuccessResponse(cart, "Items restored to cart successfully"));
         }
 
-
-        private Guid? GetUserId()
+        private Guid GetUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-                return null;
+                throw new InvalidOperationException("User ID claim is missing or invalid.");
 
             return userId;
         }
+
     }
 }

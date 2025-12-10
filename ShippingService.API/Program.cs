@@ -18,24 +18,30 @@ namespace ShippingService.API
                .AddApplicationServices()
                .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
                .AddJwtAuthentication(builder.Configuration)
-               .ConfigureApiBehavior();
+               .ConfigureApiBehavior()
+               .AddCustomHealthChecks(builder.Configuration);
+
+            SerilogBootstrap.ConfigureSerilog(builder);
 
             builder.Services.AddConsul(builder.Configuration);
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseHealthChecksEndpoints();
             app.MapControllers();
+            app.MapGet("/health", () => "Healthy");
 
             app.Run();
         }

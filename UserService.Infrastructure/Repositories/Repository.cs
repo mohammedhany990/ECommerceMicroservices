@@ -24,7 +24,13 @@ namespace UserService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T,bool>> ? predicate = null)
+        {
+            return await _dbContext.Set<T>()
+                .AsNoTracking()
+                .Where(predicate ?? (_ => true))
+                .ToListAsync();
+        }
 
         public async Task<T?> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
 

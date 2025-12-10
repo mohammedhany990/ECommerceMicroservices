@@ -27,7 +27,10 @@ namespace OrderService.Infrastructure.Repositories
             return await query.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IQueryable<T>>? include = null)
+        public async Task<IEnumerable<T>> GetAllAsync(
+                Expression<Func<T, bool>>? predicate = null,
+                Func<IQueryable<T>, IQueryable<T>>? include = null
+            )
         {
             IQueryable<T> query = _dbContext.Set<T>().AsNoTracking();
 

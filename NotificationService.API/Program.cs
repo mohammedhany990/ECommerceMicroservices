@@ -20,7 +20,10 @@ namespace NotificationService.API
                .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection"))
                .AddJwtAuthentication(builder.Configuration)
                .ConfigureApiBehavior()
-               .AddRabbitMqServices();
+               .AddRabbitMqServices()
+               .AddCustomHealthChecks(builder.Configuration);
+
+            SerilogBootstrap.ConfigureSerilog(builder);
 
             builder.Services.AddConsul(builder.Configuration);
 
@@ -28,18 +31,19 @@ namespace NotificationService.API
 
             var app = builder.Build();
 
+            app.UseMiddleware<ExceptionMiddleware>();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
-
+            app.UseHealthChecksEndpoints();
             app.MapControllers();
             app.MapGet("/health", () => "Healthy");
 

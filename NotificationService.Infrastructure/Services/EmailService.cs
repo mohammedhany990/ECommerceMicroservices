@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using NotificationService.Domain.Interfaces;
 
@@ -9,14 +10,18 @@ namespace NotificationService.Infrastructure.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<bool> SendAsync(string to, string subject, string body)
         {
+            _logger.LogInformation("Sending email to {Recipient} with subject {Subject}", to, subject);
+
             try
             {
                 var email = new MimeMessage();
@@ -28,19 +33,12 @@ namespace NotificationService.Infrastructure.Services
                     _configuration["MailSettings:Email"]
                 ));
 
-
                 email.To.Add(MailboxAddress.Parse(to));
-
                 email.Subject = subject;
 
-                var builder = new BodyBuilder
-                {
-                    TextBody = body
-                };
-
+                var builder = new BodyBuilder { TextBody = body };
                 email.Body = builder.ToMessageBody();
 
-                // SMTP
                 using var smtp = new SmtpClient();
 
                 await smtp.ConnectAsync(
@@ -57,11 +55,13 @@ namespace NotificationService.Infrastructure.Services
                 await smtp.SendAsync(email);
                 await smtp.DisconnectAsync(true);
 
+                _logger.LogInformation("Email sent successfully to {Recipient}", to);
+
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error sending email: " + ex.Message);
+                _logger.LogError(ex, "Failed to send email to {Recipient} with subject {Subject}", to, subject);
                 return false;
             }
         }

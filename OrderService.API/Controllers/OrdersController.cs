@@ -71,14 +71,7 @@ namespace OrderService.API.Controllers
             return Ok(ApiResponse<OrderDto>.SuccessResponse(order, "Order retrieved successfully"));
         }
 
-        [HttpGet("statuses")]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderStatusDto>>), StatusCodes.Status200OK)]
-        public IActionResult GetOrderStatuses()
-        {
-            var statuses = Enum.GetValues<OrderStatus>()
-                               .Select(s => new OrderStatusDto { Id = (int)s, Name = s.ToString() });
-            return Ok(ApiResponse<IEnumerable<OrderStatusDto>>.SuccessResponse(statuses, "Order statuses retrieved successfully"));
-        }
+        
 
         [HttpPut("{orderId:guid}")]
         public async Task<IActionResult> UpdateOrder([FromRoute] Guid orderId, [FromBody] UpdateOrderCommand request)
@@ -113,18 +106,13 @@ namespace OrderService.API.Controllers
         }
 
 
-
-        //[HttpPost("{orderId:guid}/pay")]
-        //public async Task<IActionResult> PayOrder(Guid orderId, [FromBody] PaymentDto payment)
-        //{
-        //    var order = await _mediator.Send(new PayOrderCommand(orderId, payment));
-        //    if (order is null)
-        //        return NotFound(ApiResponse<object>.FailResponse(null!, "Order not found."));
-
-        //    return Ok(ApiResponse<OrderDto>.SuccessResponse(order, "Payment processed successfully."));
-        //}
-
-
-
+        [HttpGet("statuses")]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<OrderStatusDto>>), StatusCodes.Status200OK)]
+        public IActionResult GetOrderStatuses()
+        {
+            var statuses = Enum.GetValues<OrderStatus>()
+                               .Select(s => new OrderStatusDto { Id = (int)s, Name = s.ToString() });
+            return Ok(ApiResponse<IEnumerable<OrderStatusDto>>.SuccessResponse(statuses, "Order statuses retrieved successfully"));
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using UserService.Domain.Interfaces;
-
+﻿
 namespace UserService.Infrastructure.Services
 {
     public class PasswordHasher : IPasswordHasher

@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ProductService.API.Extensions;
 using ProductService.API.Middlewares;
+using Serilog;
+using Shared.Consul;
 using System.Text;
 using System.Threading;
-using Shared.Consul;
 namespace ProductService.API
 {
     public class Program
@@ -23,34 +24,32 @@ namespace ProductService.API
                 .AddApplicationServices()
                 .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
                 .AddJwtAuthentication(builder.Configuration)
-                .ConfigureApiBehavior();
+                .ConfigureApiBehavior()
+                .AddConsul(builder.Configuration)
+                .AddCustomHealthChecks(builder.Configuration);
 
-            builder.Services.AddConsul(builder.Configuration);
-
-
-
-
+            SerilogBootstrap.ConfigureSerilog(builder);
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseMiddleware<ExceptionMiddleware>();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.UseMiddleware<ExceptionMiddleware>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseHealthChecksEndpoints();
             app.MapControllers();
             app.MapGet("/health", () => "Healthy");
 
-            //app.RegisterConsul(serviceSettings);
-
             app.Run();
+
         }
     }
 }

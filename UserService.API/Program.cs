@@ -22,12 +22,16 @@ namespace UserService.API
                .AddJwtAuthentication(builder.Configuration)
                .ConfigureApiBehavior()
                .AddCustomRateLimiting()
-               .AddRabbitMqServices();
+               .AddRabbitMqServices()
+               .AddCustomHealthChecks(builder.Configuration);
+
+            SerilogBootstrap.ConfigureSerilog(builder);
 
             builder.Services.AddConsul(builder.Configuration);
 
 
             var app = builder.Build();
+
 
             app.UseMiddleware<ExceptionMiddleware>();
 
@@ -37,16 +41,16 @@ namespace UserService.API
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
             app.UseRateLimiter();
+            app.UseHttpsRedirection();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseHealthChecksEndpoints();
             app.MapControllers();
             app.MapGet("/health", () => "Healthy");
 
             app.Run();
-
         }
     }
 }

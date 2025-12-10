@@ -36,12 +36,5 @@ namespace NotificationService.API.Controllers
 
             return Ok();
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> Create(CreateNotificationCommand command)
-        //{
-        //    var id = await _mediator.Send(command);
-        //    return Ok(new { notificationId = id });
-        //}
     }
 }

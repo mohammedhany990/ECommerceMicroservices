@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
@@ -16,6 +17,7 @@ namespace OrderService.Application.Commands.CreateOrder
         private readonly IRabbitMqPublisher<CreateNotificationEvent> _publisher;
         private readonly ProductServiceRpcClient _productServiceRpcClient;
         private readonly ShippingServiceRpcClient _shippingServiceRpcClient;
+        private readonly ILogger<CreateOrderCommandHandler> _logger;
 
         public CreateOrderCommandHandler(
             IRepository<Order> orderRepo,
@@ -23,7 +25,8 @@ namespace OrderService.Application.Commands.CreateOrder
            CartServiceRpcClient cartServiceRpcClient,
             IRabbitMqPublisher<CreateNotificationEvent> publisher,
             ProductServiceRpcClient productServiceRpcClient,
-            ShippingServiceRpcClient shippingServiceRpcClient)
+            ShippingServiceRpcClient shippingServiceRpcClient,
+             ILogger<CreateOrderCommandHandler> logger)
         {
             _orderRepo = orderRepo;
             _mapper = mapper;
@@ -31,13 +34,18 @@ namespace OrderService.Application.Commands.CreateOrder
             _publisher = publisher;
             _productServiceRpcClient = productServiceRpcClient;
             _shippingServiceRpcClient = shippingServiceRpcClient;
+            _logger = logger;
         }
         public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Creating order for UserId: {UserId}", request.UserId);
 
             var cart = await _cartServiceRpcClient.GetCartForUser(request.UserId);
             if (cart is null || !cart.Items.Any())
+            {
+                _logger.LogWarning("Cart is empty for UserId: {UserId}", request.UserId);
                 throw new Exception("Cart is empty. Cannot create order.");
+            }
 
             var orderItems = new List<OrderItem>();
 
@@ -46,7 +54,10 @@ namespace OrderService.Application.Commands.CreateOrder
             {
                 var product = await _productServiceRpcClient.GetProductByIdAsync(item.ProductId);
                 if (product is null)
+                {
+                    _logger.LogWarning("Product not found. ProductId: {ProductId}", item.ProductId);
                     throw new Exception($"Product with ID {item.ProductId} not found.");
+                }
 
                 orderItems.Add(new OrderItem
                 {
@@ -57,6 +68,7 @@ namespace OrderService.Application.Commands.CreateOrder
                     ImageUrl = product.ImageUrl
                 });
             }
+
             var subtotal = orderItems.Sum(item => item.UnitPrice * item.Quantity);
 
 
@@ -64,7 +76,10 @@ namespace OrderService.Application.Commands.CreateOrder
                 new Shared.DTOs.ShippingCostRequestDto(request.ShippingAddressId, request.ShippingMethodId));
 
             if (shippingResult == null)
+            {
+                _logger.LogWarning("Unable to calculate shipping cost for UserId: {UserId}", request.UserId);
                 throw new Exception("Unable to calculate shipping cost.");
+            }
 
             var order = new Order
             {
@@ -97,6 +112,8 @@ namespace OrderService.Application.Commands.CreateOrder
             };
 
             _publisher.Publish(notifEvent);
+
+            _logger.LogInformation("Order created successfully. OrderId: {OrderId}, UserId: {UserId}", order.Id, request.UserId);
 
 
             return orderDto;

@@ -9,6 +9,7 @@ namespace CategoryService.Application.Mapping
         public MappingProfile()
         {
             CreateMap<Category, CategoryDto>();
+
         }
     }
 }

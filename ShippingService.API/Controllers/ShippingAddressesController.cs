@@ -23,40 +23,49 @@ namespace ShippingService.API.Controllers
             _mediator = mediator;
         }
 
-        // POST: api/ShippingAddresses
         [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<ShippingAddressDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Create([FromBody] CreateShippingAddressCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(result, "Shipping address created successfully."));
         }
 
-        // PUT: api/ShippingAddresses
         [HttpPut]
+        [ProducesResponseType(typeof(ApiResponse<ShippingAddressDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Update([FromBody] UpdateShippingAddressCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(result, "Shipping address updated successfully."));
         }
 
-        // DELETE: api/ShippingAddresses/{id}
         [HttpDelete("{id:guid}")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var result = await _mediator.Send(new DeleteShippingAddressCommand { Id = id });
+            if (!result)
+                return NotFound(ApiResponse<object>.FailResponse(new List<string> { "Shipping address not found." }, "Not found", 404));
+
             return Ok(ApiResponse<bool>.SuccessResponse(result, "Shipping address deleted successfully."));
         }
 
-        // GET: api/ShippingAddresses/{id}
         [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(ApiResponse<ShippingAddressDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var result = await _mediator.Send(new GetShippingAddressByIdQuery { ID = id });
+            if (result == null)
+                return NotFound(ApiResponse<object>.FailResponse(new List<string> { "Shipping address not found." }, "Not found", 404));
+
             return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(result, "Shipping address retrieved successfully."));
         }
 
-        // GET: api/ShippingAddresses
+        [Authorize(Roles ="Admin")]
         [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<List<ShippingAddressDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
         {
             var result = await _mediator.Send(new GetShippingAddressesQuery());
