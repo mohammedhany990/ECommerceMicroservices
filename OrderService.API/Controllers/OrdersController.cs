@@ -10,6 +10,7 @@ using OrderService.Application.DTOs;
 using OrderService.Application.Queries.GetOrderById;
 using OrderService.Application.Queries.GetOrdersByUser;
 using OrderService.Domain.Entities;
+using Shared.Enums;
 using System.Security.Claims;
 
 namespace OrderService.API.Controllers

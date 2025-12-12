@@ -16,7 +16,12 @@ namespace CartService.Application.Mapping
                 .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(i => i.Subtotal + i.ShippingCost));
 
 
-            CreateMap<CartItem, CartItemDto>().ReverseMap();
+
+            CreateMap<CartItemDto, CartItem>();
+
+            CreateMap<CartItem, CartItemDto>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<CartItemPictureUrlResolver>());
+
         }
 
     }

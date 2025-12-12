@@ -33,13 +33,14 @@ namespace OrderService.Application.Queries.GetOrdersByUser
 
         public async Task<IReadOnlyList<OrderDto>> Handle(GetOrderByUserIdQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting GetOrdersByUser for UserId {UserId}", request.UserId);
-
             if (request == null)
             {
                 _logger.LogError("Request object is null in GetOrdersByUser");
                 throw new ArgumentNullException(nameof(request));
             }
+
+            _logger.LogInformation("Starting GetOrdersByUser for UserId {UserId}", request.UserId);
+
 
             var userOrders = await _repository.GetAllAsync(
                 x => x.UserId == request.UserId,
@@ -62,17 +63,14 @@ namespace OrderService.Application.Queries.GetOrdersByUser
 
                 try
                 {
-                    var paymentTask = _paymentServiceRpcClient.GetPaymentStatusAsync(orderDto.Id);
-                    var shippingTask = _shippingServiceRpcClient.GetShippingMethodByIdAsync(orderDto.ShippingMethodId);
+                    var payment = await _paymentServiceRpcClient.GetPaymentStatusAsync(orderDto.Id);
+                    var shippingMethod = await _shippingServiceRpcClient.GetShippingMethodByIdAsync(orderDto.ShippingMethodId);
 
-                    await Task.WhenAll(paymentTask, shippingTask);
-
-                    var payment = paymentTask.Result;
+                    orderDto.ShippingMethod = shippingMethod?.Name ?? "Unknown";
+                    
                     orderDto.PaymentId = payment?.PaymentId ?? Guid.Empty;
                     orderDto.PaymentStatus = payment?.Status ?? "Unknown";
 
-                    var shippingMethod = shippingTask.Result;
-                    orderDto.ShippingMethod = shippingMethod?.Name ?? "Unknown";
 
                     _logger.LogInformation(
                         "Enrich completed for OrderId {OrderId}: PaymentStatus={PaymentStatus}, ShippingMethod={ShippingMethod}",

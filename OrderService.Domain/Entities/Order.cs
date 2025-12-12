@@ -1,4 +1,6 @@
-﻿namespace OrderService.Domain.Entities
+﻿using Shared.Enums;
+
+namespace OrderService.Domain.Entities
 {
     public class Order
     {

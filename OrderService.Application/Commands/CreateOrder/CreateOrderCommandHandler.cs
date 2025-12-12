@@ -5,6 +5,7 @@ using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
 using OrderService.Infrastructure.Messaging;
+using Shared.Enums;
 using Shared.Messaging;
 
 namespace OrderService.Application.Commands.CreateOrder
@@ -53,11 +54,12 @@ namespace OrderService.Application.Commands.CreateOrder
             foreach (var item in cart.Items)
             {
                 var product = await _productServiceRpcClient.GetProductByIdAsync(item.ProductId);
-                if (product is null)
-                {
-                    _logger.LogWarning("Product not found. ProductId: {ProductId}", item.ProductId);
+                if (product == null)
                     throw new Exception($"Product with ID {item.ProductId} not found.");
-                }
+
+                var stockReserved = await _productServiceRpcClient.ReserveStockAsync(product.Id, item.Quantity);
+                if (!stockReserved)
+                    throw new Exception($"Not enough stock for product {product.Name}. Requested: {item.Quantity}");
 
                 orderItems.Add(new OrderItem
                 {
@@ -69,17 +71,20 @@ namespace OrderService.Application.Commands.CreateOrder
                 });
             }
 
+
             var subtotal = orderItems.Sum(item => item.UnitPrice * item.Quantity);
 
 
             var shippingResult = await _shippingServiceRpcClient.CalculateShippingCostAsync(
-                new Shared.DTOs.ShippingCostRequestDto(request.ShippingAddressId, request.ShippingMethodId));
+                    new Shared.DTOs.ShippingCostRequestDto(request.ShippingAddressId, request.ShippingMethodId));
 
+           
             if (shippingResult == null)
             {
-                _logger.LogWarning("Unable to calculate shipping cost for UserId: {UserId}", request.UserId);
+                _logger.LogWarning("ShippingService returned null for UserId {UserId}", request.UserId);
                 throw new Exception("Unable to calculate shipping cost.");
             }
+
 
             var order = new Order
             {

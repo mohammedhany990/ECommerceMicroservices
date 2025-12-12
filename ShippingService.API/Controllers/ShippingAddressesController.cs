@@ -8,6 +8,7 @@ using ShippingService.Application.Commands.Addresses.UpdateShippingAddress;
 using ShippingService.Application.DTOs;
 using ShippingService.Application.Queries.Addresses.GetShippingAddressById;
 using ShippingService.Application.Queries.Addresses.GetShippingAddresses;
+using System.Security.Claims;
 
 namespace ShippingService.API.Controllers
 {
@@ -23,20 +24,64 @@ namespace ShippingService.API.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<List<ShippingAddressDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAll()
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var result = await _mediator.Send(new GetShippingAddressesQuery(userId));
+            return Ok(ApiResponse<List<ShippingAddressDto>>.SuccessResponse(result, "Shipping addresses retrieved successfully."));
+        }
+
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<ShippingAddressDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Create([FromBody] CreateShippingAddressCommand command)
+        public async Task<IActionResult> Create([FromBody] CreateShippingAddressRequest request)
         {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var command = new CreateShippingAddressCommand
+            {
+                UserId = userId,
+                FullName = request.FullName,
+                AddressLine1 = request.AddressLine1,
+                AddressLine2 = request.AddressLine2,
+                City = request.City,
+                State = request.State,
+                PostalCode = request.PostalCode,
+                Country = request.Country,
+                IsDefault = request.IsDefault
+            };
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(result, "Shipping address created successfully."));
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [ProducesResponseType(typeof(ApiResponse<ShippingAddressDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Update([FromBody] UpdateShippingAddressCommand command)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateShippingAddressRequest request)
         {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var command = new UpdateShippingAddressCommand
+            {
+                Id = id,
+                UserId = userId,
+                FullName = request.FullName,
+                AddressLine1 = request.AddressLine1,
+                AddressLine2 = request.AddressLine2,
+                City = request.City,
+                State = request.State,
+                PostalCode = request.PostalCode,
+                Country = request.Country,
+                IsDefault = request.IsDefault
+            };
+
             var result = await _mediator.Send(command);
-            return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(result, "Shipping address updated successfully."));
+
+            return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(
+                result,
+                "Shipping address updated successfully."
+            ));
         }
 
         [HttpDelete("{id:guid}")]
@@ -63,13 +108,6 @@ namespace ShippingService.API.Controllers
             return Ok(ApiResponse<ShippingAddressDto>.SuccessResponse(result, "Shipping address retrieved successfully."));
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse<List<ShippingAddressDto>>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await _mediator.Send(new GetShippingAddressesQuery());
-            return Ok(ApiResponse<List<ShippingAddressDto>>.SuccessResponse(result, "Shipping addresses retrieved successfully."));
-        }
+        
     }
 }

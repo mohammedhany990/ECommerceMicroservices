@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
@@ -25,6 +26,7 @@ namespace UserService.API.Controllers
             _mediator = mediator;
         }
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         [EnableRateLimiting("slow")]
         [ProducesResponseType(typeof(ApiResponse<List<UserDto>>), StatusCodes.Status200OK)]
         public async Task<ActionResult<ApiResponse<List<UserDto>>>> GetAllUsers()
@@ -74,12 +76,13 @@ namespace UserService.API.Controllers
         }
 
         [HttpPost("revoke")]
+        [Authorize]
         [EnableRateLimiting("per-user")]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Revoke([FromBody] string refreshToken)
+        public async Task<IActionResult> Revoke([FromBody] RevokeRefreshTokenCommand command)
         {
-            if (string.IsNullOrWhiteSpace(refreshToken))
+            if (string.IsNullOrWhiteSpace(command.RefreshToken))
             {
                 return BadRequest(ApiResponse<string>.FailResponse(new List<string> { "Refresh token is required." },
                     "Invalid request",
@@ -87,7 +90,7 @@ namespace UserService.API.Controllers
                 ));
             }
 
-            var result = await _mediator.Send(new RevokeRefreshTokenCommand(refreshToken));
+            var result = await _mediator.Send(command);
             if (!result)
             {
                 return BadRequest(ApiResponse<string>.FailResponse(

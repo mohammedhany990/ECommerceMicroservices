@@ -1,12 +1,14 @@
 ﻿using MediatR;
-using ShippingService.Application.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ShippingService.Application.Commands.Addresses.UpdateShippingAddress
+namespace ShippingService.Application.DTOs
 {
-    public class UpdateShippingAddressCommand : IRequest<ShippingAddressDto>
+    public class UpdateShippingAddressRequest : IRequest<ShippingAddressDto>
     {
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string AddressLine1 { get; set; } = string.Empty;
         public string? AddressLine2 { get; set; }
@@ -16,4 +18,5 @@ namespace ShippingService.Application.Commands.Addresses.UpdateShippingAddress
         public string Country { get; set; } = string.Empty;
         public bool IsDefault { get; set; } = false;
     }
+
 }

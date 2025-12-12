@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Enums;
 using ShippingService.API.Models.Responses;
 using ShippingService.Application.Commands.Shipments.CreateShipment;
 using ShippingService.Application.Commands.Shipments.DeleteShipment;
@@ -21,6 +22,15 @@ namespace ShippingService.API.Controllers
         {
             _mediator = mediator;
         }
+
+        [HttpGet("statuses")]
+        public IActionResult GetStatuses()
+        {
+            var statuses = Enum.GetNames(typeof(ShipmentStatus));
+            return Ok(ApiResponse<string[]>.SuccessResponse(statuses, "Statuses retrieved successfully."));
+        }
+
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]

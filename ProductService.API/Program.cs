@@ -26,7 +26,8 @@ namespace ProductService.API
                 .AddJwtAuthentication(builder.Configuration)
                 .ConfigureApiBehavior()
                 .AddConsul(builder.Configuration)
-                .AddCustomHealthChecks(builder.Configuration);
+                .AddCustomHealthChecks(builder.Configuration)
+                .AddRabbitMqServices();
 
             SerilogBootstrap.ConfigureSerilog(builder);
 

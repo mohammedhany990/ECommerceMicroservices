@@ -35,6 +35,8 @@ namespace ShippingService.Application.Commands.Addresses.UpdateShippingAddress
             RuleFor(x => x.Country)
                 .NotEmpty().WithMessage("Country is required.")
                 .MaximumLength(100).WithMessage("Country cannot exceed 100 characters.");
+
+            
         }
     }
 }

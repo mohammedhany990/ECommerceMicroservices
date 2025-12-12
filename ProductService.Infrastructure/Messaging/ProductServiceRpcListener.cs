@@ -27,22 +27,28 @@ namespace ProductService.Infrastructure.Messaging
         {
             _channel = _connection.CreateChannel();
 
-            _channel.QueueDeclare(
-                queue: "product.get",
-                durable: false,
-                exclusive: false,
-                autoDelete: false
-            );
+            // product.get
+            _channel.QueueDeclare(queue: "product.get", durable: false, exclusive: false, autoDelete: false);
+            var getConsumer = new AsyncEventingBasicConsumer(_channel);
+            getConsumer.Received += async (sender, e) => await HandleGetProductAsync(sender, e, stoppingToken);
+            _channel.BasicConsume(queue: "product.get", autoAck: false, consumer: getConsumer);
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (sender, e) => await HandleRequestAsync(sender, e, stoppingToken);
+            // product.reserve_stock
+            _channel.QueueDeclare(queue: "product.reserve_stock", durable: false, exclusive: false, autoDelete: false);
+            var reserveConsumer = new AsyncEventingBasicConsumer(_channel);
+            reserveConsumer.Received += async (sender, e) => await HandleReserveStockAsync(sender, e, stoppingToken);
+            _channel.BasicConsume(queue: "product.reserve_stock", autoAck: false, consumer: reserveConsumer);
 
-            _channel.BasicConsume(queue: "product.get", autoAck: false, consumer: consumer);
+            // product.return_stock
+            _channel.QueueDeclare(queue: "product.return_stock", durable: false, exclusive: false, autoDelete: false);
+            var returnConsumer = new AsyncEventingBasicConsumer(_channel);
+            returnConsumer.Received += async (sender, e) => await HandleReturnStockAsync(sender, e, stoppingToken);
+            _channel.BasicConsume(queue: "product.return_stock", autoAck: false, consumer: returnConsumer);
 
             return Task.CompletedTask;
         }
 
-        private async Task HandleRequestAsync(object sender, BasicDeliverEventArgs e, CancellationToken cancellationToken)
+        private async Task HandleGetProductAsync(object sender, BasicDeliverEventArgs e, CancellationToken cancellationToken)
         {
             var props = e.BasicProperties;
             var replyProps = _channel.CreateBasicProperties();
@@ -56,10 +62,7 @@ namespace ProductService.Infrastructure.Messaging
             {
                 var json = Encoding.UTF8.GetString(e.Body.ToArray());
                 var request = JsonSerializer.Deserialize<GetProductRequestDto>(json,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 if (request == null || request.ProductId == Guid.Empty)
                     throw new ArgumentException("Invalid ProductId");
@@ -86,21 +89,82 @@ namespace ProductService.Infrastructure.Messaging
             }
 
             var response = productDto is not null
-                ? ApiResponse<ProductDto>.SuccessResponse(productDto, "OK", 200)
+                ? ApiResponse<ProductDto>.SuccessResponse(productDto, "Product retrieved successfully", 200)
                 : ApiResponse<ProductDto>.FailResponse(null!, "Product not found", 404);
 
             var responseBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+            _channel.BasicPublish(exchange: "", routingKey: props.ReplyTo, basicProperties: replyProps, body: responseBytes);
+            _channel.BasicAck(e.DeliveryTag, multiple: false);
+        }
 
-            _channel.BasicPublish(
-                exchange: "",
-                routingKey: props.ReplyTo,
-                basicProperties: replyProps,
-                body: responseBytes
-            );
+        private async Task HandleReserveStockAsync(object sender, BasicDeliverEventArgs e, CancellationToken cancellationToken)
+        {
+            var props = e.BasicProperties;
+            var replyProps = _channel.CreateBasicProperties();
+            replyProps.CorrelationId = props.CorrelationId;
 
+            bool success = false;
+
+            using var scope = _scopeFactory.CreateScope();
+            var repo = scope.ServiceProvider.GetRequiredService<IRepository<Product>>();
+
+            try
+            {
+                var json = Encoding.UTF8.GetString(e.Body.ToArray());
+                var request = JsonSerializer.Deserialize<ReserveStockRequestDto>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (request != null && request.ProductId != Guid.Empty && request.Quantity > 0)
+                {
+                    success = await repo.TryReserveStockAsync(request.ProductId, request.Quantity);
+                }
+            }
+            catch
+            {
+                success = false;
+            }
+
+            var response = new { Success = success };
+            var responseBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+            _channel.BasicPublish(exchange: "", routingKey: props.ReplyTo, basicProperties: replyProps, body: responseBytes);
+            _channel.BasicAck(e.DeliveryTag, multiple: false);
+        }
+
+        private async Task HandleReturnStockAsync(object sender, BasicDeliverEventArgs e, CancellationToken cancellationToken)
+        {
+            var props = e.BasicProperties;
+            var replyProps = _channel.CreateBasicProperties();
+            replyProps.CorrelationId = props.CorrelationId;
+
+            bool success = false;
+
+            using var scope = _scopeFactory.CreateScope();
+            var repo = scope.ServiceProvider.GetRequiredService<IRepository<Product>>();
+
+            try
+            {
+                var json = Encoding.UTF8.GetString(e.Body.ToArray());
+                var request = JsonSerializer.Deserialize<ReturnStockRequestDto>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (request != null && request.ProductId != Guid.Empty && request.Quantity > 0)
+                {
+                    success = await repo.ReturnStockAsync(request.ProductId, request.Quantity);
+                }
+            }
+            catch
+            {
+                success = false;
+            }
+
+            var response = new { Success = success };
+            var responseBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
+            _channel.BasicPublish(exchange: "", routingKey: props.ReplyTo, basicProperties: replyProps, body: responseBytes);
             _channel.BasicAck(e.DeliveryTag, multiple: false);
         }
     }
 
     public record GetProductRequestDto(Guid ProductId);
+    public record ReserveStockRequestDto(Guid ProductId, int Quantity);
+    public record ReturnStockRequestDto(Guid ProductId, int Quantity);
 }

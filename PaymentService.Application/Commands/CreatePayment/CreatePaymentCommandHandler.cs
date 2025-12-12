@@ -6,6 +6,7 @@ using PaymentService.Application.DTOs;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
 using PaymentService.Infrastructure.Messaging;
+using Shared.Enums;
 using Stripe;
 
 namespace PaymentService.Application.Commands.CreatePayment

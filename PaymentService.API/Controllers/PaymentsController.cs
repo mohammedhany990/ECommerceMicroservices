@@ -13,6 +13,7 @@ using PaymentService.Application.Queries.GetPaymentByOrderId;
 using PaymentService.Application.Queries.GetPaymentsByUser;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
+using Shared.Enums;
 using System.Security.Claims;
 
 namespace PaymentService.API.Controllers

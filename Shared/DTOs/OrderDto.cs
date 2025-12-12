@@ -1,4 +1,6 @@
-﻿namespace Shared.DTOs
+﻿using Shared.Enums;
+
+namespace Shared.DTOs
 {
     public class OrderDto
     {
@@ -8,7 +10,7 @@
         public Guid ShippingMethodId { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         public decimal Subtotal { get; set; }
         public decimal ShippingCost { get; set; }
@@ -17,7 +19,7 @@
         public string? ShippingMethod { get; set; } = string.Empty;
         public DateTime? ExpectedDeliveryDate { get; set; }
 
-        public string PaymentStatus { get; set; } = "Pending";
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
         public Guid? PaymentId { get; set; }
 
         public List<OrderItemDto> Items { get; set; } = new();

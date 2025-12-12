@@ -1,4 +1,7 @@
-﻿namespace PaymentService.Domain.Entities
+﻿using Shared.Enums;
+ 
+
+namespace PaymentService.Domain.Entities
 {
     public class Payment
     {

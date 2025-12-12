@@ -20,12 +20,12 @@ namespace ShippingService.Infrastructure.Services
             var address = await _addressRepo.GetByIdAsync(addressId);
             var method = await _methodRepo.GetByIdAsync(methodId);
 
-            if (address == null || method == null)
+            if (address is null || method is null)
                 throw new Exception("Invalid address or shipping method.");
 
             var cost = method.Cost;
-            if (address.Country != "DefaultCountry")
-                cost += 5;
+            if (address.Country != "Egypt")
+                cost += 200;
 
             return new ShippingCostResultDto
             {

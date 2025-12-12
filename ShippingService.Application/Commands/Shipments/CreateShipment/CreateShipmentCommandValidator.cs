@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using ShippingService.Application.Commands.Shipments.CreateShipment;
+using Shared.Enums;
 
 namespace ShippingService.Application.Commands.Shipments.CreateShipment
 {
@@ -21,24 +23,12 @@ namespace ShippingService.Application.Commands.Shipments.CreateShipment
             RuleFor(x => x.TrackingNumber)
                 .MaximumLength(50)
                 .WithMessage("Tracking number cannot exceed 50 characters.");
-
-
-            RuleFor(x => x.Status)
-                 .MaximumLength(20)
-                 .WithMessage("Status cannot exceed 20 characters.");
-
+           
 
             RuleFor(x => x.DeliveredAt)
-                .GreaterThanOrEqualTo(x => x.ShippedAt)
-                .WithMessage("DeliveredAt must be greater than or equal to ShippedAt.");
-
-            When(x => x.DeliveredAt.HasValue, () =>
-            {
-                RuleFor(x => x.DeliveredAt)
-                    .GreaterThanOrEqualTo(x => x.ShippedAt)
-                    .WithMessage("DeliveredAt must be greater than or equal to ShippedAt.");
-            });
-
+                .GreaterThanOrEqualTo(x => x.ShippedAt ?? DateTime.MinValue)
+                .WithMessage("DeliveredAt must be greater than or equal to ShippedAt.")
+                .When(x => x.DeliveredAt.HasValue);
         }
     }
 }

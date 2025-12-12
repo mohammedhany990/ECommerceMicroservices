@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CartService.Application.Mapping;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 
@@ -14,7 +15,9 @@ namespace OrderService.Application.Mapping
                 .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId));
 
 
-            CreateMap<OrderItem, OrderItemDto>();
+            CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<OrderItemPictureUrlResolver>());
+
 
         }
     }

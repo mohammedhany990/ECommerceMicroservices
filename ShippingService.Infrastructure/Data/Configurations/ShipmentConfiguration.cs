@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shared.Enums;
 using ShippingService.Domain.Entities;
 
 namespace ShippingService.Infrastructure.Data.Configurations
@@ -10,11 +11,8 @@ namespace ShippingService.Infrastructure.Data.Configurations
         {
             builder.HasKey(x => x.Id);
 
-
             builder.HasIndex(x => x.OrderId)
                    .HasDatabaseName("ix_shipments_order_id");
-
-
 
             builder.Property(x => x.OrderId)
                    .IsRequired();
@@ -27,12 +25,29 @@ namespace ShippingService.Infrastructure.Data.Configurations
 
             builder.Property(x => x.TrackingNumber)
                    .HasMaxLength(100)
-                   .IsRequired(false);
+                   .HasDefaultValue("TBD")
+                   .IsRequired();
 
             builder.Property(x => x.Status)
+                   .HasConversion<string>()
                    .HasMaxLength(50)
-                   .HasDefaultValue("Pending")
+                   .HasDefaultValue(ShipmentStatus.Pending)
                    .IsRequired();
+
+            builder.Property(x => x.ShippingCost)
+                   .IsRequired();
+
+            builder.Property(x => x.ShippedAt)
+                   .IsRequired()
+                   .HasDefaultValueSql("NOW()");
+
+            builder.Property(x => x.CreatedAt)
+                   .IsRequired()
+                   .HasDefaultValueSql("NOW()");
+
+            builder.Property(x => x.UpdatedAt)
+                   .IsRequired()
+                   .HasDefaultValueSql("NOW()");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Shared.Enums;
 
 namespace ShippingService.Application.Commands.Shipments.UpdateShipment
 {
@@ -16,14 +17,15 @@ namespace ShippingService.Application.Commands.Shipments.UpdateShipment
                 .When(x => !string.IsNullOrEmpty(x.TrackingNumber));
 
             RuleFor(x => x.Status)
-                .MaximumLength(20)
-                .WithMessage("Status cannot exceed 20 characters.")
-                .When(x => !string.IsNullOrEmpty(x.Status));
+                 .Must(status => string.IsNullOrEmpty(status) || Enum.TryParse<ShipmentStatus>(status, ignoreCase: true, out _))
+                 .WithMessage("Invalid shipment status.");
+
 
             RuleFor(x => x.DeliveredAt)
-                .GreaterThanOrEqualTo(x => x.ShippedAt.Value)
-                .WithMessage("DeliveredAt must be greater than or equal to ShippedAt.")
-                .When(x => x.DeliveredAt.HasValue && x.ShippedAt.HasValue);
+                .Must((cmd, deliveredAt) =>
+                    !deliveredAt.HasValue || !cmd.ShippedAt.HasValue || deliveredAt.Value >= cmd.ShippedAt.Value)
+                .WithMessage("DeliveredAt must be greater than or equal to ShippedAt.");
         }
     }
+
 }

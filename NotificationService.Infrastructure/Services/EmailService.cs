@@ -22,18 +22,22 @@ namespace NotificationService.Infrastructure.Services
         {
             _logger.LogInformation("Sending email to {Recipient} with subject {Subject}", to, subject);
 
+            if (!MailboxAddress.TryParse(to, out var mailbox))
+            {
+                _logger.LogWarning("Invalid email address: {Recipient}", to);
+                return false;
+            }
+
             try
             {
                 var email = new MimeMessage();
-
                 email.Sender = MailboxAddress.Parse(_configuration["MailSettings:Email"]);
-
                 email.From.Add(new MailboxAddress(
                     _configuration["MailSettings:DisplayName"],
                     _configuration["MailSettings:Email"]
                 ));
 
-                email.To.Add(MailboxAddress.Parse(to));
+                email.To.Add(mailbox); // use validated mailbox
                 email.Subject = subject;
 
                 var builder = new BodyBuilder { TextBody = body };
@@ -65,5 +69,6 @@ namespace NotificationService.Infrastructure.Services
                 return false;
             }
         }
+
     }
 }

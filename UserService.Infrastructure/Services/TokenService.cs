@@ -14,12 +14,17 @@ namespace UserService.Infrastructure.Services
     public class TokenService : ITokenService
     {
         private readonly JwtSettings _jwtSettings;
-        private readonly IRepository<RefreshToken> _repository;
+        private readonly IRepository<RefreshToken> _refreshTokenRepository;
+        private readonly IRepository<User> _userRepository;
 
-        public TokenService(IOptions<JwtSettings> jwtOptions, IRepository<RefreshToken> repository)
+        public TokenService(
+            IOptions<JwtSettings> jwtOptions,
+            IRepository<RefreshToken> refreshTokenRepository,
+            IRepository<User> userRepository)
         {
             _jwtSettings = jwtOptions.Value;
-            _repository = repository;
+            _refreshTokenRepository = refreshTokenRepository;
+            _userRepository = userRepository;
         }
         public async Task<string> GenerateAccessToken(User user)
         {
@@ -64,8 +69,8 @@ namespace UserService.Infrastructure.Services
                 ExpiresOn = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenDurationDays)
             };
 
-            await _repository.AddAsync(refreshToken);
-            await _repository.SaveChangesAsync();
+            await _refreshTokenRepository.AddAsync(refreshToken);
+            await _refreshTokenRepository.SaveChangesAsync();
 
             return refreshToken;
         }
@@ -105,42 +110,56 @@ namespace UserService.Infrastructure.Services
 
         public async Task RevokeAllUserRefreshTokens(Guid userId)
         {
-            var tokens = await _repository.GetAllAsync(x => x.UserId == userId);
+            var tokens = await _refreshTokenRepository.GetAllAsync(x => x.UserId == userId);
 
             foreach (var rt in tokens)
             {
                 rt.RevokedOn = DateTime.UtcNow;
             }
 
-            await _repository.SaveChangesAsync();
+            await _refreshTokenRepository.SaveChangesAsync();
         }
 
-        public async Task RevokeRefreshToken(string refreshToken)
+        public async Task<bool> RevokeRefreshToken(string refreshToken)
         {
-            var token = await _repository.FirstOrDefaultAsync(x => x.Token == refreshToken);
-            if (token == null) return;
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return false;
+
+            var token = await _refreshTokenRepository
+                .FirstOrDefaultAsync(x => x.Token == refreshToken);
+
+            if (token == null || !token.IsActive)
+                return false;
 
             token.RevokedOn = DateTime.UtcNow;
 
-            await _repository.UpdateAsync(token);
-            await _repository.SaveChangesAsync();
+            await _refreshTokenRepository.UpdateAsync(token);
+            await _refreshTokenRepository.SaveChangesAsync();
+
+            return true;
         }
+
 
         public async Task<TokenResponse> UseRefreshToken(string refreshToken)
         {
-            var oldToken = await _repository.FirstOrDefaultAsync(x => x.Token == refreshToken);
-            if (oldToken == null || !oldToken.IsActive)
+            var oldToken = await _refreshTokenRepository.FirstOrDefaultAsync(x => x.Token == refreshToken);
+            if (oldToken is null || !oldToken.IsActive)
                 return null;
 
             oldToken.RevokedOn = DateTime.UtcNow;
-            await _repository.UpdateAsync(oldToken);
+            await _refreshTokenRepository.UpdateAsync(oldToken);
+
+
+            var user = await _userRepository.GetByIdAsync(oldToken.UserId);
+            if (user is null)
+                return null;
 
             var newJwtId = Guid.NewGuid().ToString();
 
-            var newAccessToken = GenerateNewAccessToken(oldToken.UserId.ToString(), newJwtId);
+            var newAccessToken = await GenerateAccessToken(user);
             var newRefreshToken = await GenerateRefreshToken(oldToken.UserId, newJwtId);
 
-            await _repository.SaveChangesAsync();
+            await _refreshTokenRepository.SaveChangesAsync();
 
             return new TokenResponse
             {
@@ -150,32 +169,12 @@ namespace UserService.Infrastructure.Services
         }
 
 
-        private string GenerateNewAccessToken(string userId, string jwtId)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim(JwtRegisteredClaimNames.Jti, jwtId)
-            };
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var jwt = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenDurationMinutes),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(jwt);
-        }
 
         public async Task<bool> ValidateRefreshToken(string refreshToken)
         {
-            var token = await _repository.FirstOrDefaultAsync(x => x.Token == refreshToken);
+            var token = await _refreshTokenRepository.FirstOrDefaultAsync(x => x.Token == refreshToken);
 
             if (token == null) return false;
             if (!token.IsActive) return false;
@@ -183,7 +182,7 @@ namespace UserService.Infrastructure.Services
             return true;
         }
 
-       
+
     }
 
     public class TokenResponse

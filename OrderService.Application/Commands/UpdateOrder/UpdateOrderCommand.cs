@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
+using Shared.Enums;
 
 namespace OrderService.Application.Commands.UpdateOrder
 {

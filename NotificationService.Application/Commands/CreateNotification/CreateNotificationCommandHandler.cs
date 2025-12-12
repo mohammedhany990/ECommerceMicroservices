@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using MimeKit;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Interfaces;
 
@@ -20,23 +21,35 @@ namespace NotificationService.Application.Commands.CreateNotification
 
         public async Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Creating notification for UserId: {UserId}, To: {To}", request.UserId, request.To);
-
-            var notification = new Notification
+            if (!MailboxAddress.TryParse(request.To, out var mailbox))
             {
-                UserId = request.UserId,
-                To = request.To,
-                Subject = request.Subject,
-                Body = request.Body,
-                Type = request.Type
-            };
+                _logger.LogWarning("Cannot create notification. Invalid email: {Email}", request.To);
+                throw new ArgumentException("Invalid email address", nameof(request.To));
+            }
 
-            await _repository.AddAsync(notification);
-            await _repository.SaveChangesAsync();
+            try
+            {
+                var notification = new Notification
+                {
+                    UserId = request.UserId,
+                    To = request.To,
+                    Subject = request.Subject,
+                    Body = request.Body,
+                    Type = request.Type
+                };
 
-            _logger.LogInformation("Notification created successfully with Id: {NotificationId}", notification.Id);
+                await _repository.AddAsync(notification);
+                await _repository.SaveChangesAsync();
 
-            return notification.Id;
+                _logger.LogInformation("Notification created successfully with Id: {NotificationId}", notification.Id);
+
+                return notification.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create notification for UserId: {UserId}", request.UserId);
+                throw;
+            }
         }
     }
 }

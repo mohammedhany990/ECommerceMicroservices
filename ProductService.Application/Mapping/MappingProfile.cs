@@ -25,14 +25,12 @@ namespace ProductService.Application.Mapping
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.ImageUrl, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-                //.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null || srcMember is decimal || srcMember is int));
             ;
 
 
             CreateMap<Product, ProductDto>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductPictureUrlResolver>())
-                ;
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductPictureUrlResolver>());
 
         }
     }

@@ -6,7 +6,10 @@ using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
 using OrderService.Infrastructure.Messaging;
-
+using Shared.DTOs;
+using Shared.Enums;
+using System;
+using OrderDto = OrderService.Application.DTOs.OrderDto;
 namespace OrderService.Application.Commands.UpdateOrder
 {
     public class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderCommand, OrderDto>
@@ -26,12 +29,12 @@ namespace OrderService.Application.Commands.UpdateOrder
             PaymentServiceRpcClient paymentServiceRpcClient,
             ILogger<UpdateOrderCommandHandler> logger)
         {
-            _repository = repository;
-            _mapper = mapper;
-            _cartServiceRpcClient = cartServiceRpcClient;
-            _shippingServiceRpcClient = shippingServiceRpcClient;
-            _paymentServiceRpcClient = paymentServiceRpcClient;
-            _logger = logger;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _cartServiceRpcClient = cartServiceRpcClient ?? throw new ArgumentNullException(nameof(cartServiceRpcClient));
+            _shippingServiceRpcClient = shippingServiceRpcClient ?? throw new ArgumentNullException(nameof(shippingServiceRpcClient));
+            _paymentServiceRpcClient = paymentServiceRpcClient ?? throw new ArgumentNullException(nameof(paymentServiceRpcClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<OrderDto> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
@@ -57,6 +60,8 @@ namespace OrderService.Application.Commands.UpdateOrder
                 order.Status = request.Status.Value;
             }
 
+            string methodName = "Unknown";
+
             if (request.ShippingMethodId.HasValue)
             {
                 _logger.LogInformation("Fetching shipping method {ShippingMethodId} for OrderId {OrderId}",
@@ -64,44 +69,46 @@ namespace OrderService.Application.Commands.UpdateOrder
 
                 var shippingMethod = await _shippingServiceRpcClient.GetShippingMethodByIdAsync(request.ShippingMethodId.Value);
 
-                if (shippingMethod is not null)
+
+
+                if (shippingMethod != null)
                 {
-                    _logger.LogInformation("Shipping method found: {@ShippingMethod}", shippingMethod);
                     order.ShippingMethodId = shippingMethod.Id;
                     order.ShippingCost = shippingMethod.Cost;
                     order.ExpectedDeliveryDate = DateTime.UtcNow.AddDays(shippingMethod.EstimatedDeliveryDays);
-                }
-                else
-                {
-                    _logger.LogWarning("Shipping method {ShippingMethodId} not found", request.ShippingMethodId.Value);
+                    methodName = shippingMethod.Name ?? "Unknown";
+
+                    _logger.LogInformation("Shipping method found: {@ShippingMethod}", shippingMethod);
                 }
             }
 
             if (request.ShippingMethodId.HasValue || request.ShippingAddressId.HasValue)
             {
-                _logger.LogInformation(
-                    "Recalculating shipping cost for OrderId {OrderId} using ShippingAddressId {AddressId} and ShippingMethodId {MethodId}",
-                    order.Id,
+                var shippingRequest = new ShippingCostRequestDto(
                     request.ShippingAddressId ?? order.ShippingAddressId,
                     request.ShippingMethodId ?? order.ShippingMethodId
                 );
 
-                var shippingResult = await _shippingServiceRpcClient.CalculateShippingCostAsync(
-                    new Shared.DTOs.ShippingCostRequestDto(
-                        request.ShippingAddressId ?? order.ShippingAddressId,
-                        request.ShippingMethodId ?? order.ShippingMethodId
-                    ));
+                _logger.LogInformation(
+                    "Recalculating shipping cost for OrderId {OrderId} using ShippingAddressId {AddressId} and ShippingMethodId {MethodId}",
+                    order.Id,
+                    shippingRequest.ShippingAddressId,
+                    shippingRequest.ShippingMethodId
+                );
 
-                if (shippingResult is not null)
+                var shippingResult = await _shippingServiceRpcClient.CalculateShippingCostAsync(shippingRequest);
+
+
+
+                if (shippingResult != null)
                 {
-                    _logger.LogInformation("Shipping recalculated: {@ShippingResult}", shippingResult);
                     order.ShippingCost = shippingResult.Cost;
                     order.TotalAmount = order.Subtotal + shippingResult.Cost;
                     order.ExpectedDeliveryDate = DateTime.UtcNow.AddDays(shippingResult.EstimatedDeliveryDays);
-                }
-                else
-                {
-                    _logger.LogWarning("Failed to recalculate shipping for OrderId {OrderId}", order.Id);
+                    order.ShippingMethodId = shippingResult.ShippingMethodId;
+                    methodName = shippingResult.MethodName ?? methodName;
+
+                    _logger.LogInformation("Shipping recalculated: {@ShippingResult}", shippingResult);
                 }
             }
 
@@ -113,45 +120,42 @@ namespace OrderService.Application.Commands.UpdateOrder
 
                 var payment = await _paymentServiceRpcClient.GetPaymentStatusAsync(order.Id);
 
-                if (payment is null)
+                if (payment != null)
                 {
-                    _logger.LogError("Payment status retrieval failed for OrderId {OrderId}", order.Id);
-                    throw new Exception("Failed to retrieve payment status.");
-                }
-
-                _logger.LogInformation("Payment service returned status {@PaymentStatus}", payment);
-
-                if (Enum.TryParse<PaymentStatus>(payment.Status, true, out var parsedStatus))
-                {
-                    _logger.LogInformation("Parsed payment status for OrderId {OrderId}: {ParsedStatus}", order.Id, parsedStatus);
-                    order.PaymentStatus = parsedStatus;
+                    if (Enum.TryParse<PaymentStatus>(payment.Status, true, out var parsedStatus))
+                    {
+                        order.PaymentStatus = parsedStatus;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Unknown payment status '{Status}' for OrderId {OrderId}. Setting to Pending.", payment.Status, order.Id);
+                        order.PaymentStatus = PaymentStatus.Pending;
+                    }
                 }
                 else
                 {
-                    _logger.LogWarning("Unknown payment status '{Status}' for OrderId {OrderId}. Setting to Pending.", payment.Status, order.Id);
+                    _logger.LogWarning("Payment status retrieval failed for OrderId {OrderId}", order.Id);
                     order.PaymentStatus = PaymentStatus.Pending;
                 }
             }
 
             if (request.ShippingAddressId.HasValue)
             {
-                _logger.LogInformation("Updating ShippingAddressId for OrderId {OrderId} to {AddressId}",
-                    order.Id, request.ShippingAddressId.Value);
-
                 order.ShippingAddressId = request.ShippingAddressId.Value;
+                _logger.LogInformation("Updated ShippingAddressId for OrderId {OrderId} to {AddressId}", order.Id, order.ShippingAddressId);
             }
 
             if (request.ExpectedDeliveryDate.HasValue)
             {
-                _logger.LogInformation("Updating ExpectedDeliveryDate for OrderId {OrderId}", order.Id);
                 order.ExpectedDeliveryDate = request.ExpectedDeliveryDate.Value;
+                _logger.LogInformation("Updated ExpectedDeliveryDate for OrderId {OrderId}", order.Id);
             }
 
             if (order.Status == OrderStatus.Cancelled && order.Items.Any())
             {
                 _logger.LogInformation("Order {OrderId} cancelled. Restoring {Count} items to cart.", order.Id, order.Items.Count);
 
-                var cartItems = order.Items.Select(i => new Shared.DTOs.CartItemDto
+                var cartItems = order.Items.Select(i => new CartItemDto
                 {
                     ProductId = i.ProductId,
                     Quantity = i.Quantity
@@ -161,11 +165,11 @@ namespace OrderService.Application.Commands.UpdateOrder
             }
 
             _logger.LogInformation("Saving updated order {OrderId} to database", order.Id);
-
             await _repository.UpdateAsync(order);
             await _repository.SaveChangesAsync();
 
             var result = _mapper.Map<OrderDto>(order);
+            result.ShippingMethod = methodName;
 
             _logger.LogInformation("Order {OrderId} updated successfully. Result: {@OrderDto}", order.Id, result);
 

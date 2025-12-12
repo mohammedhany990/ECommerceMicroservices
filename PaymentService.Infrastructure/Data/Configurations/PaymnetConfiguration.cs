@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PaymentService.Domain.Entities;
+using Shared.Enums;
+
 
 namespace PaymentService.Infrastructure.Data.Configurations
 {

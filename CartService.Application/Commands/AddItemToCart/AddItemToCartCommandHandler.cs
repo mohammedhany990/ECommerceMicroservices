@@ -5,6 +5,10 @@ using CartService.Domain.Interfaces;
 using CartService.Infrastructure.Messaging;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CartService.Application.Commands.AddItemToCart
 {
@@ -19,7 +23,7 @@ namespace CartService.Application.Commands.AddItemToCart
             ICartRepository repository,
             IMapper mapper,
             ProductServiceRpcClient productServiceRpcClient,
-            ILogger<AddItemToCartCommandHandler> logger) 
+            ILogger<AddItemToCartCommandHandler> logger)
         {
             _repository = repository;
             _mapper = mapper;
@@ -29,8 +33,13 @@ namespace CartService.Application.Commands.AddItemToCart
 
         public async Task<CartDto> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Adding item to cart. UserId: {UserId}, ProductId: {ProductId}, Quantity: {Quantity}",
-                request.UserId, request.ProductId, request.Quantity);
+            if (request.Quantity <= 0)
+            {
+                _logger.LogWarning("Invalid quantity requested. Quantity must be greater than 0. UserId: {UserId}, ProductId: {ProductId}", request.UserId, request.ProductId);
+                throw new ArgumentException("Quantity must be greater than 0");
+            }
+
+            _logger.LogInformation("Adding item to cart. UserId: {UserId}, ProductId: {ProductId}, Quantity: {Quantity}", request.UserId, request.ProductId, request.Quantity);
 
             var product = await _productServiceRpcClient.GetProductByIdAsync(request.ProductId);
             if (product == null)
@@ -48,17 +57,44 @@ namespace CartService.Application.Commands.AddItemToCart
             var cart = await _repository.GetCartAsync(request.UserId) ?? new Cart { UserId = request.UserId };
             _logger.LogInformation("Cart retrieved for user {UserId}", request.UserId);
 
-            var item = new CartItem
+            var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == product.Id);
+            if (existingItem is not null)
             {
-                ProductId = product.Id,
-                ProductName = product.Name,
-                UnitPrice = product.Price,
-                Quantity = request.Quantity,
-                ImageUrl = product.ImageUrl
-            };
+                var newQuantity = existingItem.Quantity + request.Quantity;
 
-            cart.AddItem(item);
-            _logger.LogInformation("Item added to cart. ProductId: {ProductId}", product.Id);
+                if (newQuantity > product.QuantityInStock)
+                {
+                    _logger.LogWarning(
+                        "Requested quantity exceeds stock. Requested total: {RequestedTotal}, Available: {Available}, ProductId: {ProductId}",
+                        newQuantity, product.QuantityInStock, product.Id);
+                    throw new Exception($"Cannot add {request.Quantity} items. Only {product.QuantityInStock - existingItem.Quantity} left in stock.");
+                }
+
+                existingItem.Quantity = newQuantity;
+                _logger.LogInformation("Existing cart item quantity updated. ProductId: {ProductId}, NewQuantity: {Quantity}", product.Id, existingItem.Quantity);
+            }
+            else
+            {
+                if (request.Quantity > product.QuantityInStock)
+                {
+                    _logger.LogWarning(
+                        "Requested quantity exceeds stock. Requested: {Requested}, Available: {Available}, ProductId: {ProductId}",
+                        request.Quantity, product.QuantityInStock, product.Id);
+                    throw new Exception($"Requested quantity ({request.Quantity}) exceeds available stock ({product.QuantityInStock})");
+                }
+
+                var newItem = new CartItem
+                {
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    UnitPrice = product.Price,
+                    Quantity = request.Quantity,
+                    ImageUrl = product.ImageUrl
+                };
+
+                cart.AddItem(newItem);
+                _logger.LogInformation("New item added to cart. ProductId: {ProductId}, Quantity: {Quantity}", product.Id, newItem.Quantity);
+            }
 
             var updatedCart = await _repository.UpdateCartAsync(cart);
             _logger.LogInformation("Cart updated for user {UserId}", request.UserId);

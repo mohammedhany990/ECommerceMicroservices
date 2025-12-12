@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShippingService.Domain.Interfaces;
 using ShippingService.Infrastructure.Data;
+using System.Linq.Expressions;
 
 namespace ShippingService.Infrastructure.Repositories
 {
@@ -16,7 +17,32 @@ namespace ShippingService.Infrastructure.Repositories
             _dbSet = _dbContext.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbContext.Set<T>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(predicate);
+        }
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Set<T>()
+                .AsNoTracking()
+                .AnyAsync(predicate, cancellationToken);
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync(
+             Expression<Func<T, bool>>? predicate = null,
+             CancellationToken cancellationToken = default)
+        {
+            IQueryable<T> query = _dbContext.Set<T>();
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.ToListAsync(cancellationToken);
+        }
+
+
 
 
         public async Task<T> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);

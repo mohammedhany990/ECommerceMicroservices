@@ -1,14 +1,14 @@
-﻿namespace PaymentService.Domain.Entities
+﻿namespace Shared.Enums
 {
     public enum PaymentStatus
     {
         Pending,
-        Succeeded,
         Processing,
+        Paid,
+        Succeeded,
+        Confirmed,
         Failed,
         Refunded,
-        Canceled,
-        Confirmed
+        Canceled
     }
-
 }

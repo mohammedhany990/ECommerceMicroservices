@@ -18,8 +18,9 @@ namespace ShippingService.Application.Queries.Addresses.GetShippingAddresses
         }
         public async Task<List<ShippingAddressDto>> Handle(GetShippingAddressesQuery request, CancellationToken cancellationToken)
         {
-            var shippingAddresses = await _repository.GetAllAsync();
-            return _mapper.Map<List<ShippingAddressDto>>(shippingAddresses);
+            var userAddresses = await _repository.GetAllAsync(a => a.UserId == request.UserId, cancellationToken);
+
+            return _mapper.Map<List<ShippingAddressDto>>(userAddresses);
         }
     }
 }

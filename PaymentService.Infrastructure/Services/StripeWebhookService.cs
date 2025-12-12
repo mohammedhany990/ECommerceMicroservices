@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
+using Shared.Enums;
 using Stripe;
 
 namespace PaymentService.Infrastructure.Services

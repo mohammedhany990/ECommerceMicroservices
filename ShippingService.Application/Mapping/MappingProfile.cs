@@ -14,10 +14,8 @@ namespace ShippingService.Application.Mapping
     {
         public MappingProfile()
         {
-            // ===========================
             // Shipping Methods
-            // ===========================
-
+           
             // Create Shipping Method
             CreateMap<CreateShippingMethodCommand, ShippingMethod>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()))
@@ -37,10 +35,8 @@ namespace ShippingService.Application.Mapping
 
 
 
-            // ===========================
             // Shipping Addresses
-            // ===========================
-
+          
             // Create Shipping Address
             CreateMap<CreateShippingAddressCommand, ShippingAddress>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()))
@@ -59,10 +55,8 @@ namespace ShippingService.Application.Mapping
 
 
 
-            // ===========================
             // Shipments
-            // ===========================
-
+            
             // Create Shipment
             CreateMap<CreateShipmentCommand, Shipment>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()))
@@ -73,9 +67,9 @@ namespace ShippingService.Application.Mapping
 
             // Update Shipment
             CreateMap<UpdateShipmentCommand, Shipment>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcValue) => srcValue != null));
+            
             // Entity → DTO
             CreateMap<Shipment, ShipmentDto>();
         }

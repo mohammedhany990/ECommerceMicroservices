@@ -24,12 +24,14 @@ namespace UserService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T,bool>> ? predicate = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
         {
-            return await _dbContext.Set<T>()
-                .AsNoTracking()
-                .Where(predicate ?? (_ => true))
-                .ToListAsync();
+            IQueryable<T> query = _dbContext.Set<T>().AsNoTracking();
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return await query.ToListAsync();
         }
 
         public async Task<T?> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
@@ -61,6 +63,7 @@ namespace UserService.Infrastructure.Repositories
             _dbSet.Update(entity);
             return Task.CompletedTask;
         }
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate) => await _dbSet.AsNoTracking().AnyAsync(predicate);
 
 
         public async Task SaveChangesAsync() => await _dbContext.SaveChangesAsync();

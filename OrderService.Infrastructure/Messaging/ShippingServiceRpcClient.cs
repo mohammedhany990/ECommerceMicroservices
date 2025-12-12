@@ -1,5 +1,7 @@
 ﻿using Shared.DTOs;
 using Shared.Messaging;
+using System;
+using System.Threading.Tasks;
 
 namespace OrderService.Infrastructure.Messaging
 {
@@ -9,34 +11,49 @@ namespace OrderService.Infrastructure.Messaging
 
         public ShippingServiceRpcClient(RpcClient rpc)
         {
-            _rpc = rpc;
+            _rpc = rpc ?? throw new ArgumentNullException(nameof(rpc));
         }
 
-        public async Task<ShippingCostResultDto?> CalculateShippingCostAsync(ShippingCostRequestDto dto, int timeoutMs = 5000)
+        public async Task<ShippingCostResultDto> CalculateShippingCostAsync(ShippingCostRequestDto dto, int timeoutMs = 5000)
         {
             var task = _rpc.Call<ShippingCostResultDto>(
                 routingKey: "shipping.calculate",
                 message: dto
             );
 
-            if (await Task.WhenAny(task, Task.Delay(timeoutMs)) == task)
-                return await task;
-            else
+            var completedTask = await Task.WhenAny(task, Task.Delay(timeoutMs));
+
+            if (completedTask != task)
                 throw new TimeoutException("Timeout waiting for ShippingService RPC response");
+
+            var result = await task;
+
+            if (result == null)
+                throw new Exception("Shipping service returned no result");
+
+
+            return result;
         }
 
-        public async Task<ShippingMethodDto?> GetShippingMethodByIdAsync(Guid id, int timeoutMs = 5000)
+
+        public async Task<ShippingMethodDto> GetShippingMethodByIdAsync(Guid id, int timeoutMs = 5000)
         {
             var task = _rpc.Call<ShippingMethodDto>(
                 routingKey: "shipping.get",
                 message: new { Id = id }
             );
 
-            if (await Task.WhenAny(task, Task.Delay(timeoutMs)) == task)
-                return await task;
-            else
+            var completedTask = await Task.WhenAny(task, Task.Delay(timeoutMs));
+
+            if (completedTask != task)
                 throw new TimeoutException("Timeout waiting for ShippingService RPC response");
+
+            var result = await task;
+
+            if (result == null)
+                throw new Exception($"Shipping method with ID {id} not found");
+
+            return result;
         }
     }
-
 }

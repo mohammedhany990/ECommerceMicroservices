@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Shared.Consul;
 using ShippingService.API.Extensions;
 using ShippingService.API.Middlewares;
-using Shared.Consul;
+using System.Text.Json.Serialization;
 namespace ShippingService.API
 {
     public class Program
@@ -10,8 +11,16 @@ namespace ShippingService.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+
+
+            builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+
+            });
+          
 
             builder.Services
                .AddSwaggerWithJwt()
@@ -19,7 +28,8 @@ namespace ShippingService.API
                .AddDatabase(builder.Configuration.GetConnectionString("DefaultConnection")!)
                .AddJwtAuthentication(builder.Configuration)
                .ConfigureApiBehavior()
-               .AddCustomHealthChecks(builder.Configuration);
+               .AddCustomHealthChecks(builder.Configuration)
+               .AddRabbitMqServices();
 
             SerilogBootstrap.ConfigureSerilog(builder);
 
