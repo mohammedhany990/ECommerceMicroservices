@@ -10,6 +10,7 @@ This solution demonstrates a realistic, enterprise-grade distributed system cont
 * **Payments (Stripe)**
 * **Shipping**
 * **User Management**
+* **Notification**
 * **API Gateway**
 
 Each service is completely isolated with its own **Domain, Infrastructure, and Application layers**, following clean boundaries and high-quality software engineering practices.
@@ -28,6 +29,8 @@ Each service is completely isolated with its own **Domain, Infrastructure, and A
 * **Stripe Payment Integration**
 * **PostgreSQL**
 * **Redis (for Cart caching)**
+* **RabbitMQ**
+* **Oclet & Consul**
 
 ---
 
