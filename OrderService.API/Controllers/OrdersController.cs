@@ -50,7 +50,7 @@ namespace OrderService.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetOrdersForCurrentUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var orders = await _mediator.Send(new GetOrderByUserIdQuery(Guid.Parse(userId)));
 

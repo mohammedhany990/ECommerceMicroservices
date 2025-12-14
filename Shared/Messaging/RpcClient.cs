@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 
@@ -9,12 +10,11 @@ namespace Shared.Messaging
     {
         private readonly IRabbitMqConnection _connection;
         private readonly IModel _channel;
-
         private readonly string _replyQueue;
         private readonly AsyncEventingBasicConsumer _consumer;
 
-        private string? _correlationId;
-        private TaskCompletionSource<string>? _tcs;
+        private readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _pendingRequests
+            = new();
 
         public RpcClient(IRabbitMqConnection connection)
         {
@@ -31,36 +31,43 @@ namespace Shared.Messaging
 
         private Task OnResponseReceived(object sender, BasicDeliverEventArgs e)
         {
-            if (e.BasicProperties.CorrelationId == _correlationId)
+            if (e.BasicProperties.CorrelationId != null &&
+                _pendingRequests.TryRemove(e.BasicProperties.CorrelationId, out var tcs))
             {
                 var responseJson = Encoding.UTF8.GetString(e.Body.ToArray());
-                _tcs?.SetResult(responseJson);
+                tcs.SetResult(responseJson);
             }
 
             return Task.CompletedTask;
         }
 
-        public async Task<T?> Call<T>(string routingKey, object message)
+        public async Task<T?> CallAsync<T>(string routingKey, object message, int timeoutMs = 15000)
         {
-            _correlationId = Guid.NewGuid().ToString();
-            _tcs = new TaskCompletionSource<string>();
+            var correlationId = Guid.NewGuid().ToString();
+            var tcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            _pendingRequests[correlationId] = tcs;
 
             var props = _channel.CreateBasicProperties();
-            props.CorrelationId = _correlationId;
+            props.CorrelationId = correlationId;
             props.ReplyTo = _replyQueue;
 
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+            _channel.BasicPublish(exchange: "", routingKey: routingKey, basicProperties: props, body: body);
 
-            _channel.BasicPublish(
-                exchange: "",
-                routingKey: routingKey,
-                basicProperties: props,
-                body: body
-            );
+            using var cts = new CancellationTokenSource(timeoutMs);
+            cts.Token.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
 
-            var json = await _tcs.Task;
-
-            return JsonSerializer.Deserialize<T>(json);
+            try
+            {
+                var json = await tcs.Task;
+                return JsonSerializer.Deserialize<T>(json);
+            }
+            catch (TaskCanceledException)
+            {
+                _pendingRequests.TryRemove(correlationId, out _);
+                throw new TimeoutException("Timeout waiting for RPC response");
+            }
         }
     }
 }

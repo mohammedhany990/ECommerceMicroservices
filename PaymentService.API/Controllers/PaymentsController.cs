@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.RateLimiting;
 using PaymentService.API.Models.Responses;
 using PaymentService.Application.Commands.CancelPayment;
 using PaymentService.Application.Commands.CreatePayment;
+using PaymentService.Application.Commands.MarkPaidTest;
 using PaymentService.Application.Commands.RefundPayment;
 using PaymentService.Application.DTOs;
 using PaymentService.Application.Events;
 using PaymentService.Application.Queries.GetPaymentById;
 using PaymentService.Application.Queries.GetPaymentByOrderId;
 using PaymentService.Application.Queries.GetPaymentsByUser;
-using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
 using Shared.Enums;
 using System.Security.Claims;
@@ -32,15 +32,32 @@ namespace PaymentService.API.Controllers
             _stripeWebhookService = stripeWebhookService;
         }
 
-        [HttpPost]
-        [EnableRateLimiting("payment-concurrency")]
-        [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentCommand command)
+
+        [HttpGet("user-payments")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPaymentsByUser()
         {
-            var result = await _mediator.Send(command);
-            return Ok(ApiResponse<PaymentDto>.SuccessResponse(result, "Payment created successfully."));
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var payments = await _mediator.Send(new GetPaymentsByUserQuery { UserId = userId });
+
+            return Ok(ApiResponse<List<PaymentDto>>.SuccessResponse(payments, "User payments retrieved successfully."));
         }
+
+
+
+        [HttpGet("{paymentId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPaymentById([FromRoute] Guid paymentId)
+        {
+            var payment = await _mediator.Send(new GetPaymentByIdQuery { PaymentId = paymentId });
+            if (payment == null)
+                return NotFound(ApiResponse<object>.FailResponse(null!, "Payment not found."));
+
+            return Ok(ApiResponse<PaymentDto>.SuccessResponse(payment, "Payment retrieved successfully."));
+        }
+
 
 
         [HttpGet("by-order/{orderId:guid}")]
@@ -53,6 +70,18 @@ namespace PaymentService.API.Controllers
                 return NotFound(ApiResponse<object>.FailResponse(null!, "Payment not found for this order."));
 
             return Ok(ApiResponse<PaymentResultDto>.SuccessResponse(payment, "Payment retrieved successfully."));
+        }
+
+        [HttpPost("{orderId:guid}")]
+        [EnableRateLimiting("payment-concurrency")]
+        [ProducesResponseType(typeof(ApiResponse<PaymentDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> CreatePayment([FromRoute] Guid orderId)
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _mediator.Send(new CreatePaymentCommand(orderId, userId));
+            return Ok(ApiResponse<PaymentDto>.SuccessResponse(result, "Payment created successfully."));
         }
 
         [HttpPost("cancel")]
@@ -71,33 +100,6 @@ namespace PaymentService.API.Controllers
         {
             var result = await _mediator.Send(command);
             return Ok(ApiResponse<PaymentDto>.SuccessResponse(result, "Payment refunded successfully."));
-        }
-
-
-
-
-        [HttpGet("{paymentId:guid}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPaymentById([FromRoute] Guid paymentId)
-        {
-            var payment = await _mediator.Send(new GetPaymentByIdQuery { PaymentId = paymentId });
-            if (payment == null)
-                return NotFound(ApiResponse<object>.FailResponse(null!, "Payment not found."));
-
-            return Ok(ApiResponse<PaymentDto>.SuccessResponse(payment, "Payment retrieved successfully."));
-        }
-
-
-        [HttpGet("user-payments")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPaymentsByUser()
-        {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            var payments = await _mediator.Send(new GetPaymentsByUserQuery { UserId = userId });
-
-            return Ok(ApiResponse<List<PaymentDto>>.SuccessResponse(payments, "User payments retrieved successfully."));
         }
 
 
@@ -135,7 +137,7 @@ namespace PaymentService.API.Controllers
             {
                 var payment = await _stripeWebhookService.HandleEventAsync(json, signature);
 
-                if (payment != null && (payment.Status == PaymentStatus.Succeeded || payment.Status == PaymentStatus.Confirmed))
+                if (payment != null && payment.Status == PaymentStatus.Paid)
                 {
                     await _mediator.Publish(new PaymentSucceededEvent
                     {
@@ -153,6 +155,16 @@ namespace PaymentService.API.Controllers
                     new List<string> { ex.Message },
                     "Webhook processing failed"));
             }
+
+        }
+
+
+
+        [HttpPost("test/mark-paid")]
+        public async Task<IActionResult> MarkPaid([FromBody] MarkPaidCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result ? Ok() : BadRequest();
         }
 
     }

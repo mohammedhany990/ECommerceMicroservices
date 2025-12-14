@@ -14,7 +14,13 @@ namespace ShippingService.Infrastructure.Messaging
 
         public async Task<OrderDto?> GetOrderByIdAsync(Guid orderId)
         {
-            return await _rpcClient.Call<OrderDto>("order.request", orderId);
+            return await _rpcClient.CallAsync<OrderDto>("order.request", orderId);
         }
+        public async Task<bool> UpdateOrderStatusAsync(Guid orderId, string newStatus)
+        {
+            var result = await _rpcClient.CallAsync<bool>("order.updateStatus", new { OrderId = orderId, Status = newStatus });
+            return result;
+        }
+
     }
 }

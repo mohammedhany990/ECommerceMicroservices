@@ -1,7 +1,7 @@
 ﻿using Shared.DTOs;
 using Shared.Messaging;
 
-namespace OrderService.Infrastructure.Messaging
+namespace ShippingService.Infrastructure.Messaging
 {
     public class PaymentServiceRpcClient
     {

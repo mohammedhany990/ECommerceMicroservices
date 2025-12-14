@@ -10,7 +10,7 @@ namespace Shared.DTOs
         public Guid ShippingMethodId { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public OrderStatus Status { get; set; } = OrderStatus.Pending;
+        public string Status { get; set; } 
 
         public decimal Subtotal { get; set; }
         public decimal ShippingCost { get; set; }
@@ -19,7 +19,7 @@ namespace Shared.DTOs
         public string? ShippingMethod { get; set; } = string.Empty;
         public DateTime? ExpectedDeliveryDate { get; set; }
 
-        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+        public string PaymentStatus { get; set; } 
         public Guid? PaymentId { get; set; }
 
         public List<OrderItemDto> Items { get; set; } = new();

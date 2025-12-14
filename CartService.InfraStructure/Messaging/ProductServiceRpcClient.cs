@@ -14,7 +14,7 @@ namespace CartService.Infrastructure.Messaging
 
         public async Task<ProductDto?> GetProductByIdAsync(Guid productId, int timeoutMs = 30000)
         {
-            var task = _rpc.Call<ApiResponse<ProductDto>>(
+            var task = _rpc.CallAsync<ApiResponse<ProductDto>>(
                 routingKey: "product.get",
                 message: new { ProductId = productId }
             );

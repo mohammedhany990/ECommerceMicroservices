@@ -14,7 +14,7 @@ namespace ProductService.Infrastructure.Messaging
 
         public async Task<List<CategoryDto>> GetAllCategoriesAsync(int timeoutMs = 15000)
         {
-            var task = _rpc.Call<ApiResponse<List<CategoryDto>>>(
+            var task = _rpc.CallAsync<ApiResponse<List<CategoryDto>>>(
                 routingKey: "category.getall",
                 message: new { }
             );
@@ -30,7 +30,7 @@ namespace ProductService.Infrastructure.Messaging
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(Guid categoryId, int timeoutMs = 15000)
         {
-            var task = _rpc.Call<ApiResponse<CategoryDto>>(
+            var task = _rpc.CallAsync<ApiResponse<CategoryDto>>(
                 routingKey: "category.get",
                 message: new { CategoryId = categoryId }
             );

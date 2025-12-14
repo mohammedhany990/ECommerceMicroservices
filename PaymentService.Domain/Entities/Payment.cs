@@ -21,6 +21,7 @@ namespace PaymentService.Domain.Entities
         public string? FailureReason { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
         public DateTime? ConfirmedAt { get; set; }
         public DateTime? CanceledAt { get; set; }
         public DateTime? RefundedAt { get; set; }

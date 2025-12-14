@@ -33,9 +33,8 @@ namespace PaymentService.Infrastructure.Data.Configurations
                    .IsRequired();
 
             builder.Property(p => p.Status)
-                   .HasConversion<string>()
-                   .HasMaxLength(20)
-                   .HasDefaultValue(PaymentStatus.Pending);
+                   .IsRequired()
+                   .HasConversion<int>();
 
 
             builder.Property(p => p.PaymentIntentId)

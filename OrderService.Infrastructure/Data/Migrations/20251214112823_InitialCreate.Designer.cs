@@ -12,7 +12,7 @@ using OrderService.Infrastructure.Data;
 namespace OrderService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251116160332_InitialCreate")]
+    [Migration("20251214112823_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -42,9 +42,8 @@ namespace OrderService.Infrastructure.Data.Migrations
                     b.Property<Guid?>("PaymentId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("ShippingAddressId")
                         .HasColumnType("uuid");
@@ -55,9 +54,8 @@ namespace OrderService.Infrastructure.Data.Migrations
                     b.Property<Guid>("ShippingMethodId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Subtotal")
                         .HasColumnType("numeric(18,2)");

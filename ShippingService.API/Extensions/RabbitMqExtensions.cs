@@ -14,6 +14,7 @@ namespace ShippingService.API.Extensions
             services.AddHostedService<ShippingServiceRpcListener>();
 
             services.AddSingleton<OrderServiceRpcClient>();
+            services.AddSingleton<PaymentServiceRpcClient>();
 
             services.AddSingleton<RpcClient>();
 

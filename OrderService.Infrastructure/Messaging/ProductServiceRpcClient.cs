@@ -16,7 +16,7 @@ namespace OrderService.Infrastructure.Messaging
 
         public async Task<ProductDto?> GetProductByIdAsync(Guid productId, int timeoutMs = 30000)
         {
-            var task = _rpc.Call<ApiResponse<ProductDto>>(
+            var task = _rpc.CallAsync<ApiResponse<ProductDto>>(
                 routingKey: "product.get",
                 message: new { ProductId = productId }
             );
@@ -33,7 +33,7 @@ namespace OrderService.Infrastructure.Messaging
         
         public async Task<bool> ReserveStockAsync(Guid productId, int quantity)
         {
-            var task = _rpc.Call<object>(routingKey: "product.reserve_stock", message: new { ProductId = productId, Quantity = quantity });
+            var task = _rpc.CallAsync<object>(routingKey: "product.reserve_stock", message: new { ProductId = productId, Quantity = quantity });
             var response = await task;
             var json = System.Text.Json.JsonSerializer.Serialize(response);
             var obj = System.Text.Json.JsonSerializer.Deserialize<ReserveStockResponseDto>(json);
@@ -41,7 +41,7 @@ namespace OrderService.Infrastructure.Messaging
         }
         public async Task<bool> ReturnStockAsync(Guid productId, int quantity)
         {
-            var task = _rpc.Call<object>(
+            var task = _rpc.CallAsync<object>(
                 routingKey: "product.return_stock", 
                 message: new { ProductId = productId, Quantity = quantity }
             );

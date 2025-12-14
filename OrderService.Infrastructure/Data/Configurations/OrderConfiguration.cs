@@ -27,7 +27,7 @@ namespace OrderService.Infrastructure.Data.Configurations
 
             builder.Property(o => o.Status)
                    .IsRequired()
-                   .HasConversion<string>();
+                   .HasConversion<int>();
 
             builder.Property(o => o.Subtotal)
                    .IsRequired()
@@ -47,7 +47,7 @@ namespace OrderService.Infrastructure.Data.Configurations
 
             builder.Property(o => o.PaymentStatus)
                   .IsRequired()
-                  .HasConversion<string>();
+                  .HasConversion<int>();
 
             builder.Property(o => o.PaymentId);
 

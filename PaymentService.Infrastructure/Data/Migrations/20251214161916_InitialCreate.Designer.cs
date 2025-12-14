@@ -12,7 +12,7 @@ using PaymentService.Infrastructure.Data;
 namespace PaymentService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251117175903_InitialCreate")]
+    [Migration("20251214161916_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -77,12 +77,11 @@ namespace PaymentService.Infrastructure.Data.Migrations
                     b.Property<DateTime?>("RefundedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("Pending");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");

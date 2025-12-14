@@ -16,7 +16,7 @@ namespace OrderService.Infrastructure.Messaging
 
         public async Task<ShippingCostResultDto> CalculateShippingCostAsync(ShippingCostRequestDto dto, int timeoutMs = 5000)
         {
-            var task = _rpc.Call<ShippingCostResultDto>(
+            var task = _rpc.CallAsync<ShippingCostResultDto>(
                 routingKey: "shipping.calculate",
                 message: dto
             );
@@ -38,7 +38,7 @@ namespace OrderService.Infrastructure.Messaging
 
         public async Task<ShippingMethodDto> GetShippingMethodByIdAsync(Guid id, int timeoutMs = 5000)
         {
-            var task = _rpc.Call<ShippingMethodDto>(
+            var task = _rpc.CallAsync<ShippingMethodDto>(
                 routingKey: "shipping.get",
                 message: new { Id = id }
             );

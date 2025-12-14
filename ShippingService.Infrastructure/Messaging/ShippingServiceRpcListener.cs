@@ -37,9 +37,26 @@ namespace ShippingService.Infrastructure.Messaging
                 "shipping.calculate",
                 (service, request) => service.CalculateAsync(request.ShippingAddressId, request.ShippingMethodId));
 
-            StartConsumer<IdWrapper, ShippingMethod, IRepository<ShippingMethod>>(
+            
+
+            StartConsumer<IdRequestDto, ShippingMethodDto, IRepository<ShippingMethod>>(
                 "shipping.get",
-                (service, request) => service.GetByIdAsync(request.Id));
+                async (repo, request) =>
+                {
+                    var entity = await repo.GetByIdAsync(request.Id);
+                    if (entity == null) return null;
+
+                    return new ShippingMethodDto
+                    {
+                      Id = entity.Id,
+                      Name = entity.Name,
+                      Cost = entity.Cost,
+                      EstimatedDeliveryDays = entity.EstimatedDeliveryDays,
+                      CreatedAt = entity.CreatedAt,
+                      UpdatedAt = entity.UpdatedAt,
+                      IsActive  =entity.IsActive 
+                    };
+                });
 
             return Task.CompletedTask;
         }
@@ -84,9 +101,10 @@ namespace ShippingService.Infrastructure.Messaging
             return Task.CompletedTask;
         }
 
-        private class IdWrapper
+        public class IdRequestDto
         {
             public Guid Id { get; set; }
         }
+
     }
 }

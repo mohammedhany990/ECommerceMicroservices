@@ -12,6 +12,7 @@ namespace PaymentService.Application.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
             CreateMap<Payment, PaymentResultDto>()
+                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }

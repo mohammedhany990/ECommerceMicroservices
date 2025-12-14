@@ -7,7 +7,11 @@ namespace PaymentService.Application.Commands.CreatePayment
     {
         public Guid OrderId { get; set; }
         public Guid UserId { get; set; }
-        public string Currency { get; set; } = "usd";
+        public CreatePaymentCommand(Guid orderId, Guid userId)
+        {
+            OrderId = orderId;
+            UserId = userId;
+        }
     }
 
 }

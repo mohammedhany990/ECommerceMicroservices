@@ -118,10 +118,11 @@ namespace OrderService.Application.Commands.UpdateOrder
             {
                 _logger.LogInformation("Fetching payment status for OrderId {OrderId}", order.Id);
 
-                var payment = await _paymentServiceRpcClient.GetPaymentStatusAsync(order.Id);
+                var payment = await _paymentServiceRpcClient.GetPaymentAsync(order.Id);
 
                 if (payment != null)
                 {
+
                     if (Enum.TryParse<PaymentStatus>(payment.Status, true, out var parsedStatus))
                     {
                         order.PaymentStatus = parsedStatus;

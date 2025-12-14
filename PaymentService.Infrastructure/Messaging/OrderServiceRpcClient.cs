@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.DTOs;
+using Shared.Enums;
 using Shared.Messaging;
 using System.Text;
 using System.Text.Json;
@@ -9,53 +10,37 @@ namespace PaymentService.Infrastructure.Messaging
 {
     public class OrderServiceRpcClient
     {
-        private readonly IRabbitMqConnection _connection;
+        private readonly RpcClient _rpcClient;
 
-        public OrderServiceRpcClient(IRabbitMqConnection connection)
+        public OrderServiceRpcClient(RpcClient rpcClient)
         {
-            _connection = connection;
+            _rpcClient = rpcClient;
         }
 
-        public async Task<OrderDto?> GetOrderByIdAsync(Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<OrderDto?> GetOrderByIdAsync(Guid orderId)
         {
-            using var channel = _connection.CreateChannel();
+            return await _rpcClient.CallAsync<OrderDto>("order.request", orderId);
+        }
 
-            var replyQueue = channel.QueueDeclare().QueueName;
-            var correlationId = Guid.NewGuid().ToString();
-
-            var props = channel.CreateBasicProperties();
-
-            props.CorrelationId = correlationId;
-            props.ReplyTo = replyQueue;
-
-            var messageBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(orderId));
-
-            channel.BasicPublish(
-                exchange: "",
-                routingKey: "order.request",
-                basicProperties: props,
-                body: messageBytes);
-
-            var tcs = new TaskCompletionSource<OrderDto?>();
-
-            var consumer = new EventingBasicConsumer(channel);
-
-            consumer.Received += (model, ea) =>
+        public async Task<bool> UpdateOrderPaymentStatusAsync(Guid orderId, PaymentStatus status)
+        {
+            var request = new UpdateOrderPaymentStatusRpcRequest
             {
-                if (ea.BasicProperties.CorrelationId == correlationId)
-                {
-                    var body = ea.Body.ToArray();
-                    var order = JsonSerializer.Deserialize<OrderDto>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    tcs.SetResult(order);
-                }
+                OrderId = orderId,
+                PaymentStatus = status.ToString()
             };
 
-            channel.BasicConsume(queue: replyQueue, autoAck: true, consumer: consumer);
-
-            using (cancellationToken.Register(() => tcs.SetCanceled()))
-            {
-                return await tcs.Task;
-            }
+            return await _rpcClient.CallAsync<bool>(
+                routingKey: "order.updatePaymentStatus",
+                message: request
+            );
         }
     }
+
+    public class UpdateOrderPaymentStatusRpcRequest
+    {
+        public Guid OrderId { get; set; }
+        public string PaymentStatus { get; set; } = string.Empty;
+    }
 }
+

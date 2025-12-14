@@ -6,7 +6,9 @@ using OrderService.Application.DTOs;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
 using OrderService.Infrastructure.Messaging;
-
+using Shared.DTOs;
+using Shared.Enums;
+using OrderDto = OrderService.Application.DTOs.OrderDto;
 namespace OrderService.Application.Queries.GetOrdersByUser
 {
     public class GetOrderByUserIdQueryHandler : IRequestHandler<GetOrderByUserIdQuery, IReadOnlyList<OrderDto>>
@@ -41,7 +43,6 @@ namespace OrderService.Application.Queries.GetOrdersByUser
 
             _logger.LogInformation("Starting GetOrdersByUser for UserId {UserId}", request.UserId);
 
-
             var userOrders = await _repository.GetAllAsync(
                 x => x.UserId == request.UserId,
                 include: q => q.Include(o => o.Items)
@@ -57,46 +58,51 @@ namespace OrderService.Application.Queries.GetOrdersByUser
 
             var orderDtos = _mapper.Map<IReadOnlyList<OrderDto>>(userOrders);
 
-            var enrichmentTasks = orderDtos.Select(async orderDto =>
-            {
-                _logger.LogInformation("Enriching OrderId {OrderId} for UserId {UserId}", orderDto.Id, request.UserId);
-
-                try
-                {
-                    var payment = await _paymentServiceRpcClient.GetPaymentStatusAsync(orderDto.Id);
-                    var shippingMethod = await _shippingServiceRpcClient.GetShippingMethodByIdAsync(orderDto.ShippingMethodId);
-
-                    orderDto.ShippingMethod = shippingMethod?.Name ?? "Unknown";
-                    
-                    orderDto.PaymentId = payment?.PaymentId ?? Guid.Empty;
-                    orderDto.PaymentStatus = payment?.Status ?? "Unknown";
-
-
-                    _logger.LogInformation(
-                        "Enrich completed for OrderId {OrderId}: PaymentStatus={PaymentStatus}, ShippingMethod={ShippingMethod}",
-                        orderDto.Id,
-                        orderDto.PaymentStatus,
-                        orderDto.ShippingMethod
-                    );
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex,
-                        "Error enriching OrderId {OrderId} for UserId {UserId}",
-                        orderDto.Id,
-                        request.UserId);
-
-                    orderDto.PaymentStatus = "Error";
-                    orderDto.ShippingMethod = "Error";
-                }
-            });
-
+            var enrichmentTasks = orderDtos.Select(EnrichOrderAsync);
             await Task.WhenAll(enrichmentTasks);
 
             _logger.LogInformation("Completed GetOrdersByUser for UserId {UserId}", request.UserId);
 
             return orderDtos;
         }
+
+
+        private async Task<OrderDto> EnrichOrderAsync(OrderDto orderDto)
+        {
+            try
+            {
+                var paymentTask = _paymentServiceRpcClient.GetPaymentAsync(orderDto.Id);
+                var shippingTask = _shippingServiceRpcClient.GetShippingMethodByIdAsync(orderDto.ShippingMethodId);
+
+                await Task.WhenAll(paymentTask, shippingTask);
+
+                var payment = await paymentTask;
+                var shipping = await shippingTask;
+
+                orderDto.ShippingMethod = string.IsNullOrWhiteSpace(shipping?.Name) ? "Unknown" : shipping.Name;
+                orderDto.PaymentStatus = payment?.Status?.ToString() ?? PaymentStatus.Unknown.ToString();
+                orderDto.PaymentId = payment?.PaymentId ?? Guid.Empty;
+
+                _logger.LogInformation(
+                    "Enriched OrderId {OrderId}: PaymentStatus={PaymentStatus}, ShippingMethod={ShippingMethod}",
+                    orderDto.Id,
+                    orderDto.PaymentStatus,
+                    orderDto.ShippingMethod
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to enrich OrderId {OrderId}. Setting defaults.", orderDto.Id);
+                orderDto.ShippingMethod = "Unknown";
+                orderDto.PaymentStatus = PaymentStatus.Unknown.ToString();
+                orderDto.PaymentId = Guid.Empty;
+            }
+
+            return orderDto;
+        }
     }
 
+
+
 }
+

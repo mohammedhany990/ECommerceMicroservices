@@ -14,7 +14,7 @@ namespace OrderService.Infrastructure.Messaging
 
         public Task<CartDto?> GetCartForUser(Guid userId)
         {
-            return _rpc.Call<CartDto>(
+            return _rpc.CallAsync<CartDto>(
                 routingKey: "cart.get",
                 message: new { UserId = userId }
             );
@@ -22,7 +22,7 @@ namespace OrderService.Infrastructure.Messaging
 
         public async Task<bool> ClearCartForUser(Guid userId)
         {
-            return await _rpc.Call<bool>(
+            return await _rpc.CallAsync<bool>(
                 routingKey: "cart.clear",
                 message: new { UserId = userId }
             );
@@ -30,7 +30,7 @@ namespace OrderService.Infrastructure.Messaging
 
         public Task<CartDto?> RestoreItemsToCart(Guid userId, List<CartItemDto> items)
         {
-            return _rpc.Call<CartDto>(
+            return _rpc.CallAsync<CartDto>(
                 routingKey: "cart.restore",
                 message: new { UserId = userId, Items = items }
             );

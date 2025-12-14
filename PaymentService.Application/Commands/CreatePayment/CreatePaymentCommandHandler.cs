@@ -47,12 +47,12 @@ namespace PaymentService.Application.Commands.CreatePayment
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
             var amountToCharge = order.TotalAmount;
 
-            _logger.LogInformation("Creating Stripe PaymentIntent for amount: {Amount} {Currency}", amountToCharge, request.Currency);
+            _logger.LogInformation("Creating Stripe PaymentIntent for amount: {Amount}", amountToCharge);
 
             var options = new PaymentIntentCreateOptions
             {
                 Amount = (long)(amountToCharge * 100),
-                Currency = request.Currency,
+                Currency = "usd",
                 AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                 {
                     Enabled = true,
@@ -75,7 +75,7 @@ namespace PaymentService.Application.Commands.CreatePayment
                 OrderId = request.OrderId,
                 UserId = request.UserId,
                 Amount = order.TotalAmount,
-                Currency = request.Currency,
+                Currency = "usd",
                 PaymentIntentId = intent.Id,
                 ClientSecret = intent.ClientSecret,
                 Status = PaymentStatus.Pending,

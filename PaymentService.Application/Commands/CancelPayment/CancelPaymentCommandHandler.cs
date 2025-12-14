@@ -42,28 +42,28 @@ namespace PaymentService.Application.Commands.CancelPayment
             _logger.LogInformation("Starting payment cancellation for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
 
             var payment = await _repository.GetByPaymentIntentIdAsync(request.PaymentIntentId);
-            if (payment == null)
+            if (payment is null)
             {
                 _logger.LogWarning("Payment not found for PaymentIntentId: {PaymentIntentId}", request.PaymentIntentId);
-                throw new Exception("Payment not found.");
+                throw new InvalidOperationException("Payment not found.");
             }
 
             if (string.IsNullOrWhiteSpace(payment.PaymentIntentId))
             {
                 _logger.LogWarning("Payment does not contain a valid PaymentIntentId. PaymentId: {PaymentId}", payment.Id);
-                throw new Exception("This payment does not contain a valid PaymentIntentId.");
+                throw new InvalidOperationException("This payment does not contain a valid PaymentIntentId.");
             }
 
-            if (payment.Status == PaymentStatus.Succeeded)
+            if (payment.Status == PaymentStatus.Paid)
             {
-                _logger.LogWarning("Cannot cancel a succeeded payment. PaymentId: {PaymentId}", payment.Id);
-                throw new Exception("Cannot cancel a succeeded payment.");
+                _logger.LogWarning("Cannot cancel a paid payment. PaymentId: {PaymentId}", payment.Id);
+                throw new InvalidOperationException("Cannot cancel a paid payment.");
             }
 
             if (payment.Status == PaymentStatus.Failed)
             {
                 _logger.LogWarning("Cannot cancel a failed payment. PaymentId: {PaymentId}", payment.Id);
-                throw new Exception("Cannot cancel a failed payment.");
+                throw new InvalidOperationException("Cannot cancel a failed payment.");
             }
 
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
@@ -78,7 +78,7 @@ namespace PaymentService.Application.Commands.CancelPayment
             catch (StripeException ex)
             {
                 _logger.LogError(ex, "Stripe cancellation failed for PaymentIntentId: {PaymentIntentId}", payment.PaymentIntentId);
-                throw new Exception($"Stripe cancellation failed: {ex.Message}");
+                throw new InvalidOperationException($"Stripe cancellation failed: {ex.Message}");
             }
 
             payment.Status = PaymentStatus.Canceled;
@@ -96,18 +96,16 @@ namespace PaymentService.Application.Commands.CancelPayment
                 To = userEmail,
                 Subject = "Payment Canceled",
                 Body = $@"
-                        Hello,
+                    Hello,
 
-                        We want to inform you that your payment with ID: {payment.Id} 
-                        and amount: ${payment.Amount} has been canceled successfully.
+                    Your payment with ID: {payment.Id} and amount: ${payment.Amount} has been canceled successfully.
 
-                        Canceled At: {payment.CanceledAt?.ToString("yyyy-MM-dd HH:mm:ss")} UTC
+                    Canceled At: {payment.CanceledAt?.ToString("yyyy-MM-dd HH:mm:ss")} UTC
 
-                        If you did not request this cancellation, please contact support immediately.
+                    If you did not request this cancellation, please contact support immediately.
 
-                        Thank you,
-                        Ecommerce
-                        "
+                    Thank you,
+                    Ecommerce"
             };
 
             _ = Task.Run(() =>
@@ -120,5 +118,6 @@ namespace PaymentService.Application.Commands.CancelPayment
 
             return _mapper.Map<PaymentResultDto>(payment);
         }
+
     }
 }

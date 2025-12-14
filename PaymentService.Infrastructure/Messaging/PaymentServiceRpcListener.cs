@@ -72,7 +72,7 @@ namespace PaymentService.Infrastructure.Messaging
                 if (request == null)
                 {
                     response = ApiResponse<PaymentResultDto>.FailResponse(
-                        new List<string> { "Invalid request payload" }, statusCode: 400
+                        new List<string> { "Invalid request payload" }, "An error occurred", 400
                     );
                 }
                 else
@@ -85,7 +85,7 @@ namespace PaymentService.Infrastructure.Messaging
                     if (payment == null)
                     {
                         response = ApiResponse<PaymentResultDto>.FailResponse(
-                            new List<string> { "Payment not found" }, statusCode: 404
+                            new List<string> { "Payment not found" }, "An error occurred", 404
                         );
                     }
                     else
@@ -111,18 +111,21 @@ namespace PaymentService.Infrastructure.Messaging
             {
                 _logger.LogError(ex, "Error processing RPC request");
                 response = ApiResponse<PaymentResultDto>.FailResponse(
-                    new List<string> { "Server error" }, statusCode: 500
+                    new List<string> { "Server error" }, "An error occurred", 500
                 );
             }
 
             var responseBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(response));
 
-            _channel.BasicPublish(
-                exchange: "",
-                routingKey: ea.BasicProperties.ReplyTo,
-                basicProperties: replyProps,
-                body: responseBytes
-            );
+            if (!string.IsNullOrEmpty(ea.BasicProperties.ReplyTo))
+            {
+                _channel.BasicPublish(
+                    exchange: "",
+                    routingKey: ea.BasicProperties.ReplyTo,
+                    basicProperties: replyProps,
+                    body: responseBytes
+                );
+            }
 
             _channel.BasicAck(ea.DeliveryTag, multiple: false);
         }
@@ -132,7 +135,6 @@ namespace PaymentService.Infrastructure.Messaging
             _channel?.Close();
             base.Dispose();
         }
-
         private class OrderIdRequest
         {
             public Guid OrderId { get; set; }

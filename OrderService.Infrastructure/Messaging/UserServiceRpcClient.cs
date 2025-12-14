@@ -14,7 +14,7 @@ namespace PaymentService.Infrastructure.Messaging
 
         public async Task<string?> GetUserEmailAsync(Guid userId, int timeoutMs = 15000)
         {
-            var task = _rpc.Call<ApiResponse<string>>(
+            var task = _rpc.CallAsync<ApiResponse<string>>(
                 routingKey: "user.getemail",
                 message: new { UserId = userId }
             );

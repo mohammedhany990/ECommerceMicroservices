@@ -18,7 +18,7 @@ namespace NotificationService.Infrastructure.Messaging
         }
         public async Task<bool> UserExistsAsync(Guid userId, int timeoutMs = 15000)
         {
-            var task = _rpc.Call<ApiResponse<bool>>(
+            var task = _rpc.CallAsync<ApiResponse<bool>>(
                 routingKey: "user.exists",
                 message: new { UserId = userId }
             );

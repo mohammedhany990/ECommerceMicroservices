@@ -19,7 +19,8 @@ namespace PaymentService.Infrastructure.Services
             ILogger<StripeWebhookService> logger)
         {
             _paymentRepository = paymentRepository;
-            _webhookSecret = configuration["Stripe:WebhookSecret"];
+            _webhookSecret = configuration["Stripe:WebhookSecret"]
+                ?? throw new ArgumentNullException("Stripe:WebhookSecret not configured");
             _logger = logger;
         }
 
@@ -35,74 +36,119 @@ namespace PaymentService.Infrastructure.Services
                     _webhookSecret,
                     throwOnApiVersionMismatch: false);
             }
-            catch (Exception ex)
+            catch (StripeException ex)
             {
                 _logger.LogError(ex, "Invalid Stripe webhook signature.");
-                throw new Exception("Invalid Stripe webhook signature.");
+                return null;
             }
 
-            switch (stripeEvent.Type)
+            if (stripeEvent.Data.Object is not PaymentIntent intent)
             {
-                case "payment_intent.succeeded":
-                    {
-                        var intent = stripeEvent.Data.Object as PaymentIntent;
-                        return await UpdatePaymentStatusAsync(intent, PaymentStatus.Succeeded);
-                    }
-
-                case "payment_intent.payment_failed":
-                    {
-                        var intent = stripeEvent.Data.Object as PaymentIntent;
-                        await UpdatePaymentStatusAsync(intent, PaymentStatus.Failed, intent?.LastPaymentError?.Message);
-                        return null;
-                    }
-
-                case "payment_intent.canceled":
-                    {
-                        var intent = stripeEvent.Data.Object as PaymentIntent;
-                        await UpdatePaymentStatusAsync(intent, PaymentStatus.Canceled, "Canceled by Stripe");
-                        return null;
-                    }
-
-                default:
-                    _logger.LogInformation($"Unhandled Stripe event type: {stripeEvent.Type}");
-                    return null;
+                _logger.LogWarning("Stripe event does not contain PaymentIntent. EventType: {EventType}", stripeEvent.Type);
+                return null;
             }
+
+            _logger.LogInformation(
+                "Stripe webhook received. EventType: {EventType}, PaymentIntentId: {PaymentIntentId}",
+                stripeEvent.Type,
+                intent.Id);
+
+            return stripeEvent.Type switch
+            {
+                "payment_intent.succeeded" => await HandleSucceededAsync(intent),
+                "payment_intent.payment_failed" => await HandleFailedAsync(intent),
+                "payment_intent.canceled" => await HandleCanceledAsync(intent),
+                _ => HandleUnhandledEvent(stripeEvent.Type)
+            };
+
         }
 
-        private async Task<Payment?> UpdatePaymentStatusAsync(
-            PaymentIntent? intent,
-            PaymentStatus status,
-            string? failureReason = null)
+        //PRIVATE HANDLERS
+        private async Task<Payment?> HandleSucceededAsync(PaymentIntent intent)
         {
-            if (intent == null)
-            {
-                _logger.LogWarning("Stripe PaymentIntent object is null.");
-                return null;
-            }
-
             var payment = await _paymentRepository.GetByPaymentIntentIdAsync(intent.Id);
-
             if (payment == null)
             {
-                _logger.LogWarning($"Payment record not found for PaymentIntentId: {intent.Id}");
+                _logger.LogWarning("Payment not found for PaymentIntentId {PaymentIntentId}", intent.Id);
                 return null;
             }
 
-            payment.Status = status;
-            payment.FailureReason = failureReason;
+            // IDEMPOTENCY CHECK (MOST IMPORTANT LINE)
+            if (payment.Status == PaymentStatus.Paid)
+            {
+                _logger.LogInformation(
+                    "Payment {PaymentId} already marked as Paid. Skipping duplicate webhook.",
+                    payment.Id);
+                return null;
+            }
 
-            if (status == PaymentStatus.Succeeded)
-                payment.ConfirmedAt = DateTime.UtcNow;
-
-            if (status == PaymentStatus.Canceled)
-                payment.CanceledAt = DateTime.UtcNow;
+            payment.Status = PaymentStatus.Paid;
+            payment.ConfirmedAt = DateTime.UtcNow;
+            payment.FailureReason = null;
 
             await _paymentRepository.UpdateAsync(payment);
             await _paymentRepository.SaveChangesAsync();
 
-            _logger.LogInformation($"Payment {payment.Id} status updated to {status}");
+            _logger.LogInformation(
+                "Payment {PaymentId} successfully marked as Paid",
+                payment.Id);
 
             return payment;
+        }
+
+        private async Task<Payment?> HandleFailedAsync(PaymentIntent intent)
+        {
+            var payment = await _paymentRepository.GetByPaymentIntentIdAsync(intent.Id);
+            if (payment == null)
+                return null;
+
+            if (payment.Status == PaymentStatus.Paid)
+            {
+                _logger.LogWarning(
+                    "Ignoring failed event for already Paid payment {PaymentId}",
+                    payment.Id);
+                return null;
+            }
+
+            payment.Status = PaymentStatus.Failed;
+            payment.FailureReason = intent.LastPaymentError?.Message;
+            payment.UpdatedAt = DateTime.UtcNow;
+
+            await _paymentRepository.UpdateAsync(payment);
+            await _paymentRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Payment {PaymentId} marked as Failed", payment.Id);
+            return null;
+        }
+
+        private async Task<Payment?> HandleCanceledAsync(PaymentIntent intent)
+        {
+            var payment = await _paymentRepository.GetByPaymentIntentIdAsync(intent.Id);
+            if (payment == null)
+                return null;
+
+            if (payment.Status == PaymentStatus.Paid)
+            {
+                _logger.LogWarning(
+                    "Ignoring canceled event for already Paid payment {PaymentId}",
+                    payment.Id);
+                return null;
+            }
+
+            payment.Status = PaymentStatus.Canceled;
+            payment.CanceledAt = DateTime.UtcNow;
+
+            await _paymentRepository.UpdateAsync(payment);
+            await _paymentRepository.SaveChangesAsync();
+
+            _logger.LogInformation("Payment {PaymentId} marked as Canceled", payment.Id);
+            return null;
+        }
+
+        private Payment? HandleUnhandledEvent(string eventType)
+        {
+            _logger.LogInformation("Unhandled Stripe event type: {EventType}", eventType);
+            return null;
         }
     }
 }

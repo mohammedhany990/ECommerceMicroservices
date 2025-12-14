@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -20,11 +21,11 @@ namespace OrderService.Infrastructure.Data.Migrations
                     ShippingMethodId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     Subtotal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     ShippingCost = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    PaymentStatus = table.Column<string>(type: "text", nullable: false),
+                    PaymentStatus = table.Column<int>(type: "integer", nullable: false),
                     PaymentId = table.Column<Guid>(type: "uuid", nullable: true),
                     ExpectedDeliveryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },

@@ -48,11 +48,16 @@ namespace PaymentService.Application.Commands.RefundPayment
                 throw new Exception("Payment not found.");
             }
 
-            if (payment.Status != PaymentStatus.Succeeded)
+            if (payment.Status != PaymentStatus.Paid)
             {
-                _logger.LogWarning("Cannot refund payment that is not succeeded. PaymentId: {PaymentId}, Status: {Status}", payment.Id, payment.Status);
-                throw new Exception("Only succeeded payments can be refunded.");
+                _logger.LogWarning(
+                    "Cannot refund payment that is not paid. PaymentId: {PaymentId}, Status: {Status}",
+                    payment.Id,
+                    payment.Status);
+
+                throw new InvalidOperationException("Only paid payments can be refunded.");
             }
+
 
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
             var refundService = new RefundService();
